@@ -39,6 +39,7 @@
         .btn-sidebar { background-color: #8e44ad; }
         .btn-report { background-color: #16a085; }
         .btn-login { background-color: #c0392b; }
+        .btn-backup { background-color: #e67e22; }
 
         #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;}
         .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--accent); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
@@ -79,7 +80,7 @@
         .input-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; background: white; border: 1px solid #bbb; border-radius: 4px; overflow: hidden; transition: 0.2s; }
         .input-wrapper.drag-over { border: 2px dashed var(--success); background: #e9f7ef; transform: scale(1.02); }
         input[type="text"].soldier-input { width: 85%; padding: 8px 6px; font-size: 13px; border: none; outline: none; background: transparent; font-weight: bold; color: #2c3e50; cursor: grab; }
-        .clear-btn { color: #c0392b; cursor: pointer; font-size: 14px; font-weight: bold; width: 15%; user-select: none; border-left: 1px solid #ddd; background: #f9f9f9; padding: 7px 0; }
+        .clear-btn { color: #c0392b; cursor: pointer; font-size: 14px; font-weight: bold; width: 15%; user-select: none; border-left: 1px solid #ddd; background: #f9f9f9; padding: 7px 0; text-align: center; }
         .slot-controls { float: right; cursor: pointer; font-size: 12px; }
 
         @media print {
@@ -97,7 +98,7 @@
 </head>
 <body>
 
-    <!-- Loading Screen (With Error Handling) -->
+    <!-- Loading Screen -->
     <div id="loadingOverlay">
         <div class="spinner" id="spinnerIcon"></div>
         <h3 id="loadingText" style="color: var(--primary); margin-top: 15px;">অনলাইন সার্ভার থেকে ডাটা লোড হচ্ছে...</h3>
@@ -120,6 +121,10 @@
         <button class="btn btn-auto" onclick="authCheck(autoAssignAllDuties)">⚡ অটো ডিউটি সেট</button>
         <button class="btn btn-sidebar" onclick="toggleSidebar()">👥 ফাঁকা জনবল</button>
         <button class="btn btn-word" onclick="authCheck(addDateColumn)" style="background-color: #34495e;">➕ দিন যোগ</button>
+        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;"></div>
+        <button class="btn btn-backup" onclick="authCheck(exportBackupJSON)">📥 ব্যাকআপ নিন</button>
+        <button class="btn btn-backup" onclick="authCheck(() => document.getElementById('backupFileBox').click())" style="background-color: #d35400;">📤 ব্যাকআপ আপলোড</button>
+        <input type="file" id="backupFileBox" style="display:none" accept=".json" onchange="importBackupJSON(event)">
         <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;"></div>
         <button class="btn btn-report" onclick="openReportModal()">📊 মাসিক রিপোর্ট</button>
         <button class="btn btn-word" onclick="exportToWord()">📄 ওয়ার্ড</button>
@@ -209,25 +214,10 @@
             measurementId: "G-JWFJK4454Y"
         };
         
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const database = firebase.database();
-
-        // ================= Default Backup Data =================
-        const defaultRawData = [
-            { id: "Bjo-73300", rank: "SWO", name: "Md Akram Hossain", appointment: "", status: "leave" },
-            { id: "Bjo-73406", rank: "SWO", name: "Md Asaduzzaman Nur", appointment: "Ward Master", status: "active" },
-            { id: "Bjo-73359", rank: "WO", name: "Aminul Islam", appointment: "A/SJCO", status: "active" },
-            { id: "2008637", rank: "Sgt", name: "Saidur Rahman", appointment: "Canteen NCO", status: "active" },
-            { id: "2008639", rank: "Sgt", name: "Nazrul Islam", appointment: "CIV INCHARGE", status: "active" },
-            { id: "2009461", rank: "Sgt", name: "Abdullah Al Mamun", appointment: "", status: "leave" },
-            { id: "2009824", rank: "Sgt", name: "Mostofa", appointment: "CSM", status: "active" },
-            { id: "2010318", rank: "Sgt", name: "Arif", appointment: "Hellers Pharmacy", status: "active" },
-            { id: "2014175", rank: "Snk", name: "Hridoy", appointment: "Dialysis", status: "active" },
-            { id: "2016587", rank: "Snk", name: "Jobaida Akter Rotna", appointment: "", status: "active" }
-        ];
 
         // ================= Application State =================
         let soldiersObjList = [];
@@ -274,57 +264,120 @@
             { name: "OPD", shifts: ["F-WD/CHILD-OPD", "CWC-1", "CWC-2", "CWC-3", "MED OPD/NIC LAB OPD", "SKIN/ SURG /ORTHO /SSR", "EYE-OPD", "ENT – OPD", "WD/M OFFICE"] }
         ];
 
-        // ================= Real-time Database Sync & Auto-Migration =================
+        // Sanitize keys for Firebase compatibility (removes /, ., #, $, [, ], and replaces spaces)
+        function cleanKey(str) {
+            if (!str) return "";
+            return str.replace(/[/.#$\[\]]/g, "_").replace(/\s+/g, "_");
+        }
+
+        function sanitizeRosterData(rData) {
+            let cleanRoster = {};
+            for (let date in rData) {
+                cleanRoster[date] = {};
+                for (let key in rData[date]) {
+                    let newKey = cleanKey(key);
+                    cleanRoster[date][newKey] = rData[date][key];
+                }
+            }
+            return cleanRoster;
+        }
+
+        function sanitizeSlotCounts(counts) {
+            let sanitized = {};
+            for (let key in counts) {
+                let newKey = cleanKey(key);
+                sanitized[newKey] = counts[key];
+            }
+            return sanitized;
+        }
+
+        // ================= Real-time Database Sync =================
         
         database.ref('/').on('value', (snapshot) => {
             const data = snapshot.val();
-            document.getElementById('loadingOverlay').style.display = 'none'; // Hide loading screen
+            document.getElementById('loadingOverlay').style.display = 'none';
 
-            if (data && data.soldiersObjList) {
-                // Load data from cloud
-                soldiersObjList = data.soldiersObjList;
+            if (data && data.soldiersObjList && Object.keys(data.soldiersObjList).length > 0) {
+                soldiersObjList = Object.values(data.soldiersObjList).filter(s => s != null);
                 slotCounts = data.slotCounts || {};
                 rosterData = data.rosterData || {};
-                activeDates = data.activeDates || [];
-                if(!currentSidebarDate && activeDates.length > 0) currentSidebarDate = activeDates[0];
-            } else if (!isDataLoaded) {
-                // Cloud is empty! Migrate from Local Storage to prevent data loss.
-                let localSoldiers = JSON.parse(localStorage.getItem('cmhSoldiers_Final'));
-                if (localSoldiers && localSoldiers.length > 10) {
-                    // Restoring your hard work!
-                    soldiersObjList = localSoldiers;
-                    slotCounts = JSON.parse(localStorage.getItem('cmhSlotCounts_Final')) || {};
-                    rosterData = JSON.parse(localStorage.getItem('cmhRosterData_Final')) || {};
-                    activeDates = JSON.parse(localStorage.getItem('cmhActiveDates_Final')) || [];
-                } else {
-                    // Fresh start if no local data is found
-                    let today = new Date(); let tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
-                    activeDates = [today.toISOString().split('T')[0], tomorrow.toISOString().split('T')[0]];
-                    deptsConfig.forEach(d => d.shifts.forEach(s => slotCounts[d.name+"_"+s] = (s.includes("OPD")||s.includes("PTS")||s.includes("NON FLU"))?1:(s.includes("Morning")?3:2)));
-                    soldiersObjList = defaultRawData.map(s => ({
-                        id: s.id, rank: s.rank, trade: "MA", name: s.name, role: s.role || "General",
-                        appointment: s.appointment || "", status: s.status || "active", leaveUntil: "",
-                        displayName: `${s.rank} (MA) ${s.name}`
-                    }));
-                }
-                saveStateToFirebase(); // Push migrated/default data to Firebase
+                activeDates = data.activeDates ? Object.values(data.activeDates).filter(d => d != null) : [];
+            }
+            
+            if (activeDates.length === 0) {
+                let today = new Date(); let tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
+                activeDates = [today.toISOString().split('T')[0], tomorrow.toISOString().split('T')[0]];
+            }
+
+            if(!currentSidebarDate && activeDates.length > 0) {
+                currentSidebarDate = activeDates[0];
             }
             
             isDataLoaded = true;
             updateDashboard();
-            updateSidebar(currentSidebarDate);
             renderTable();
+            if(document.getElementById('freeStaffSidebar').classList.contains('active')) {
+                updateSidebar(currentSidebarDate);
+            }
         }, (error) => {
-            // ERROR CATCHER: Displays exact reason if loading fails
             document.getElementById('spinnerIcon').style.display = 'none';
             document.getElementById('loadingText').style.color = '#c0392b';
             document.getElementById('loadingText').innerText = "সার্ভারের সাথে কানেক্ট করা যাচ্ছে না!";
-            document.getElementById('errorText').innerHTML = `সমস্যা: ${error.message} <br><br> সমাধান: Firebase এর Rules ট্যাবে গিয়ে '.read' এবং '.write' দুটোই "true" করে Publish করা আছে কি না চেক করুন।`;
+            document.getElementById('errorText').innerHTML = `সমস্যা: ${error.message}`;
         });
 
         function saveStateToFirebase() {
             if(!isDataLoaded) return; 
-            database.ref('/').set({ soldiersObjList: soldiersObjList, slotCounts: slotCounts, rosterData: rosterData, activeDates: activeDates });
+            database.ref('/').set({ 
+                soldiersObjList: soldiersObjList, 
+                slotCounts: sanitizeSlotCounts(slotCounts), 
+                rosterData: sanitizeRosterData(rosterData), 
+                activeDates: activeDates 
+            });
+        }
+
+        // ================= Backup & Restore (JSON) =================
+        function exportBackupJSON() {
+            let backupData = {
+                soldiersObjList: soldiersObjList,
+                slotCounts: slotCounts,
+                rosterData: rosterData,
+                activeDates: activeDates
+            };
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            let downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "CMH_Roster_Backup_" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importBackupJSON(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let imported = JSON.parse(e.target.result);
+                    if (imported && imported.soldiersObjList) {
+                        soldiersObjList = Array.isArray(imported.soldiersObjList) ? imported.soldiersObjList : Object.values(imported.soldiersObjList);
+                        slotCounts = sanitizeSlotCounts(imported.slotCounts || {});
+                        rosterData = sanitizeRosterData(imported.rosterData || {});
+                        activeDates = Array.isArray(imported.activeDates) ? imported.activeDates : Object.values(imported.activeDates);
+                        
+                        saveStateToFirebase();
+                        updateDashboard();
+                        renderTable();
+                        alert("✅ আপনার ব্যাকআপ ফাইল সফলভাবে রিস্টোর এবং অনলাইন সার্ভারে আপডেট হয়েছে!");
+                    } else {
+                        alert("⚠️ ফাইলটির ফরম্যাট সঠিক নয়!");
+                    }
+                } catch (err) {
+                    alert("❌ ফাইল পড়তে সমস্যা হয়েছে: " + err.message);
+                }
+            };
+            reader.readAsText(file);
         }
 
         // ================= Core Logic Methods =================
@@ -332,47 +385,68 @@
         function updateDashboard() {
             let total = soldiersObjList.length; let active = 0, leave = 0, td = 0, admin = 0;
             soldiersObjList.forEach(s => {
+                if(!s) return;
                 if (s.status === 'leave') leave++;
                 else if (s.status === 'td' || s.status === 'course') td++; 
                 else if (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General") admin++;
                 else active++;
             });
-            document.getElementById('statTotal').innerText = total; document.getElementById('statActive').innerText = active;
-            document.getElementById('statLeave').innerText = leave; document.getElementById('statTD').innerText = td; document.getElementById('statAdmin').innerText = admin;
+            document.getElementById('statTotal').innerText = total; 
+            document.getElementById('statActive').innerText = active;
+            document.getElementById('statLeave').innerText = leave; 
+            document.getElementById('statTD').innerText = td; 
+            document.getElementById('statAdmin').innerText = admin;
         }
 
         function renderTable() {
-            const thead = document.querySelector('#rosterTable thead'); const tbody = document.querySelector('#rosterTable tbody');
-            let trHead = `<tr><th style="width: 25%;">Department & Shift</th>`; let dlHtml = '';
+            const thead = document.querySelector('#rosterTable thead'); 
+            const tbody = document.querySelector('#rosterTable tbody');
+            let trHead = `<tr><th style="width: 25%;">Department & Shift</th>`; 
+            let dlHtml = '';
             
             activeDates.forEach((date, index) => {
                 trHead += `<th>
-                    <input type="date" class="date-picker" value="${date}" onchange="if(isAdminLoggedIn) changeDate(${index}, this.value); else { alert('লগইন করুন!'); this.value='${date}'; }">
+                    <input type="date" class="date-picker" value="${date}" onchange="changeDateHandler(${index}, this.value)">
                     <div style="margin-top: 5px; display: flex; justify-content: center; gap: 5px;" class="no-print">
                         <button onclick="openFreeStaffSidebar('${date}')" style="background:#8e44ad; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">👥 ফ্রি স্টাফ</button>
-                        ${activeDates.length > 1 ? `<button class="remove-col" style="background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;" onclick="authCheck(() => removeDateColumn(${index}))">✖</button>` : ''}
+                        ${activeDates.length > 1 ? `<button class="remove-col" style="background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;" onclick="removeDateColumnHandler(${index})">✖</button>` : ''}
                     </div>
                 </th>`;
                 dlHtml += `<datalist id="list_${date}"></datalist>`;
             });
-            trHead += `</tr>`; thead.innerHTML = trHead; document.getElementById('datalists-container').innerHTML = dlHtml;
+            trHead += `</tr>`; 
+            thead.innerHTML = trHead; 
+            document.getElementById('datalists-container').innerHTML = dlHtml;
             
             let tbodyHtml = '';
             deptsConfig.forEach(dept => {
                 tbodyHtml += `<tr><td colspan="${activeDates.length + 1}" class="dept-header">${dept.name}</td></tr>`;
                 dept.shifts.forEach(shift => {
-                    let key = dept.name + "_" + shift; 
-                    let count = slotCounts[key] !== undefined && slotCounts[key] >= 1 ? slotCounts[key] : 1; 
+                    let rawKey = dept.name + "_" + shift;
+                    let key = cleanKey(rawKey); 
+                    
+                    let count = slotCounts[key] !== undefined ? slotCounts[key] : slotCounts[rawKey];
+                    if (count === undefined || count < 1) {
+                        count = (shift.includes("OPD") || shift.includes("PTS") || shift.includes("NON FLU")) ? 1 : (shift.includes("Morning") ? 3 : 2);
+                    }
+
                     let rowClass = shift.includes("Morning") || shift.includes("OPD") ? "row-Morning" : (shift.includes("Evening") ? "row-Evening" : "row-Night");
                     
                     for (let r = 0; r < count; r++) {
                         tbodyHtml += `<tr class="${rowClass}">`;
-                        if (r === 0) tbodyHtml += `<td rowspan="${count}" class="shift-label">${shift} <div class="slot-controls"><span onclick="authCheck(()=>modifySlot('${key}', 1))">➕</span> <span onclick="authCheck(()=>modifySlot('${key}', -1))">➖</span></div></td>`;
+                        if (r === 0) {
+                            tbodyHtml += `<td rowspan="${count}" class="shift-label">${shift} <div class="slot-controls"><span onclick="modifySlotHandler('${key}', 1)">➕</span> <span onclick="modifySlotHandler('${key}', -1)">➖</span></div></td>`;
+                        }
                         activeDates.forEach(date => {
-                            let slotKey = key + "_slot_" + r; let val = (rosterData[date] && rosterData[date][slotKey]) ? rosterData[date][slotKey] : "";
+                            let slotKey = key + "_slot_" + r; 
+                            let val = "";
+                            if (rosterData[date]) {
+                                val = rosterData[date][slotKey] || rosterData[date][cleanKey(rawKey + "_slot_" + r)] || "";
+                            }
+                            
                             tbodyHtml += `<td><div class="input-wrapper" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropCell(event, '${date}', '${slotKey}')">
                                     <input type="text" list="list_${date}" value="${val}" placeholder="নাম দিন" draggable="true" ondragstart="dragStart(event, this.value, '${date}', '${slotKey}')" onchange="manualInputSave('${date}', '${slotKey}', this.value)" class="soldier-input">
-                                    <span class="clear-btn" onclick="authCheck(()=>clearInput('${date}', '${slotKey}'))">✖</span></div></td>`;
+                                    <span class="clear-btn" onclick="clearInputHandler('${date}', '${slotKey}')">✖</span></div></td>`;
                         });
                         tbodyHtml += `</tr>`;
                     }
@@ -380,6 +454,33 @@
             });
             tbody.innerHTML = tbodyHtml; 
             updateDatalists();
+        }
+
+        // ================= Safe Handlers for Buttons =================
+
+        function changeDateHandler(index, newDate) {
+            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); renderTable(); return; }
+            if (newDate) { activeDates[index] = newDate; saveStateToFirebase(); renderTable(); }
+        }
+
+        function removeDateColumnHandler(index) {
+            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); return; }
+            if(activeDates.length > 1) { activeDates.splice(index, 1); saveStateToFirebase(); renderTable(); } 
+            else { alert("অন্তত একটি দিন থাকতে হবে!"); }
+        }
+
+        function modifySlotHandler(key, delta) {
+            if(!isAdminLoggedIn) { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করে পিন দিন।"); return; }
+            let currentCount = slotCounts[key];
+            if (currentCount === undefined || currentCount < 1) {
+                currentCount = (key.includes("OPD") || key.includes("PTS") || key.includes("NON FLU")) ? 1 : (key.includes("Morning") ? 3 : 2);
+            }
+            if (currentCount + delta >= 1) { slotCounts[key] = currentCount + delta; saveStateToFirebase(); renderTable(); }
+        }
+
+        function clearInputHandler(date, key) {
+            if(!isAdminLoggedIn) { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করে পিন দিন।"); return; }
+            if(rosterData[date] && rosterData[date][key]) { rosterData[date][key] = ""; saveStateToFirebase(); renderTable(); }
         }
 
         // ================= Drag & Drop / Input Handling =================
@@ -395,37 +496,49 @@
             if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); return; }
             let dataStr = ev.dataTransfer.getData("application/json");
             if(dataStr) {
-                let data = JSON.parse(dataStr); let name = data.name; let sourceDate = data.date; let sourceKey = data.key;
+                let data = JSON.parse(dataStr); 
+                let name = data.name; let sourceDate = data.date; let sourceKey = data.key;
                 if(!name) return; 
                 if(sourceDate === targetDate && sourceKey && sourceKey !== targetKey) rosterData[sourceDate][sourceKey] = ""; 
-                if (!rosterData[targetDate]) rosterData[targetDate] = {}; rosterData[targetDate][targetKey] = name; 
+                if (!rosterData[targetDate]) rosterData[targetDate] = {}; 
+                rosterData[targetDate][targetKey] = name; 
                 saveStateToFirebase();
+                renderTable();
             }
         }
-        function clearInput(date, key) { if(rosterData[date] && rosterData[date][key]) { rosterData[date][key] = ""; saveStateToFirebase(); } }
+        
         function manualInputSave(date, key, val) { 
             if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); renderTable(); return; } 
-            if (!rosterData[date]) rosterData[date] = {}; rosterData[date][key] = val.trim(); saveStateToFirebase(); 
+            if (!rosterData[date]) rosterData[date] = {}; 
+            rosterData[date][key] = val.trim(); 
+            saveStateToFirebase(); 
         }
-        function changeDate(index, newDate) { if (newDate) { activeDates[index] = newDate; saveStateToFirebase(); } }
-        function modifySlot(key, delta) { if (slotCounts[key] + delta >= 1) { slotCounts[key] += delta; saveStateToFirebase(); } }
+        
         function addDateColumn() {
             if(activeDates.length >= 7) return alert("সর্বোচ্চ ৭ দিনের রোস্টার সম্ভব।");
-            let lastDate = new Date(activeDates[activeDates.length - 1]); lastDate.setDate(lastDate.getDate() + 1);
-            activeDates.push(lastDate.toISOString().split('T')[0]); saveStateToFirebase();
+            let lastDateStr = activeDates[activeDates.length - 1];
+            let lastDate = new Date(lastDateStr);
+            lastDate.setDate(lastDate.getDate() + 1);
+            let yyyy = lastDate.getFullYear();
+            let mm = String(lastDate.getMonth() + 1).padStart(2, '0');
+            let dd = String(lastDate.getDate()).padStart(2, '0');
+            activeDates.push(`${yyyy}-${mm}-${dd}`); 
+            saveStateToFirebase();
+            renderTable();
         }
-        function removeDateColumn(index) { if(activeDates.length > 1) { activeDates.splice(index, 1); saveStateToFirebase(); } else alert("অন্তত একটি দিন থাকতে হবে!"); }
         
         function autoAssignAllDuties() {
             if (activeDates.length < 2) return alert("অটো-অ্যাসাইন করার জন্য অন্তত ২টি কলাম থাকতে হবে!");
-            let targetDate = activeDates[activeDates.length - 1]; let sourceDate = activeDates[activeDates.length - 2];
-            if (!rosterData[targetDate]) rosterData[targetDate] = {}; let assignedCount = 0;
+            let targetDate = activeDates[activeDates.length - 1]; 
+            let sourceDate = activeDates[activeDates.length - 2];
+            if (!rosterData[targetDate]) rosterData[targetDate] = {}; 
+            let assignedCount = 0;
 
             if (rosterData[sourceDate]) {
                 for (let key in rosterData[sourceDate]) {
                     let soldierName = rosterData[sourceDate][key];
                     if (soldierName && soldierName.trim() !== "") {
-                        let soldierObj = soldiersObjList.find(s => s.displayName === soldierName);
+                        let soldierObj = soldiersObjList.find(s => s && s.displayName === soldierName);
                         if (soldierObj && !soldierObj.appointment && soldierObj.status === 'active') {
                             if (!rosterData[targetDate][key] || rosterData[targetDate][key].trim() === "") {
                                 rosterData[targetDate][key] = soldierName; assignedCount++;
@@ -434,14 +547,14 @@
                     }
                 }
             }
-            if (assignedCount > 0) { alert(`✅ অটো-অ্যাসাইন সফল!`); saveStateToFirebase(); } 
+            if (assignedCount > 0) { alert(`✅ অটো-অ্যাসাইন সফল!`); saveStateToFirebase(); renderTable(); } 
             else alert("⚠️ কপি করার মতো আগের দিনের কোনো ডিউটি রেকর্ড পাওয়া যায়নি!");
         }
 
         // ================= Sidebar & Modals =================
         function toggleSidebar() { 
             let sb = document.getElementById('freeStaffSidebar'); 
-            if (sb.classList.contains('active')) sb.classList.remove('active'); 
+            if (sb.classList.contains('active')) { sb.classList.remove('active'); } 
             else { updateSidebar(currentSidebarDate || activeDates[0]); sb.classList.add('active'); } 
         }
         function openFreeStaffSidebar(date) { updateSidebar(date); document.getElementById('freeStaffSidebar').classList.add('active'); }
@@ -449,8 +562,9 @@
             if (!targetDate) targetDate = currentSidebarDate || activeDates[0];
             currentSidebarDate = targetDate; document.getElementById('sidebarDateDisplay').innerText = targetDate;
             let assignedToday = [];
-            if(rosterData[targetDate]) Object.values(rosterData[targetDate]).forEach(n => { if(n) assignedToday.push(n.trim()); }); 
+            if(rosterData[targetDate]) { Object.values(rosterData[targetDate]).forEach(n => { if(n) assignedToday.push(n.trim()); }); }
             let freeStaff = soldiersObjList.filter(s => {
+                if(!s) return false;
                 let isAdmin = (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General");
                 let isUnavailable = (s.status === 'leave' || s.status === 'td' || s.status === 'course');
                 return !(isAdmin || isUnavailable || assignedToday.includes(s.displayName));
@@ -459,27 +573,38 @@
             freeStaff.forEach(s => { listHtml += `<div class="drag-item" draggable="true" ondragstart="dragStart(event, '${s.displayName}', null, null)"><span>${s.displayName}</span> <span>🔀</span></div>`; });
             document.getElementById('freeStaffList').innerHTML = listHtml || `<div style="text-align:center; color:red; padding:20px;">সবাই ডিউটিতে আছে!</div>`;
         }
+        
         function updateDatalists() {
             activeDates.forEach(date => {
                 let datalist = document.getElementById(`list_${date}`);
                 if(datalist) {
                     datalist.innerHTML = '';
                     soldiersObjList.forEach(s => {
+                        if(!s) return;
                         let isAdmin = (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General");
-                        if (!isAdmin && s.status !== 'td' && s.status !== 'leave' && s.status !== 'course') datalist.innerHTML += `<option value="${s.displayName}">`;
+                        if (!isAdmin && s.status !== 'td' && s.status !== 'leave' && s.status !== 'course') {
+                            datalist.innerHTML += `<option value="${s.displayName}">`;
+                        }
                     });
                 }
             });
         }
         
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        
         function openManageModal() {
-            soldiersObjList.sort((a, b) => (rankValue[a.rank] || 99) - (rankValue[b.rank] || 99));
-            document.getElementById('manageModal').style.display = "block"; renderManageTable();
+            soldiersObjList.sort((a, b) => {
+                if(!a) return 1; if(!b) return -1;
+                return (rankValue[a.rank] || 99) - (rankValue[b.rank] || 99);
+            });
+            document.getElementById('manageModal').style.display = "block"; 
+            renderManageTable();
         }
+        
         function renderManageTable() {
             let tbody = document.querySelector('#manageTable tbody'); tbody.innerHTML = '';
             soldiersObjList.forEach((s, i) => {
+                if(!s) return;
                 let showLeave = s.status === 'leave' ? 'block' : 'none'; 
                 tbody.innerHTML += `
                     <tr>
@@ -495,36 +620,97 @@
                     </tr>`;
             });
         }
-        function searchTable() { /* Local search */ }
+        
+        function searchTable() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let trs = document.querySelectorAll("#manageTable tbody tr");
+            trs.forEach(tr => {
+                let nameInput = tr.querySelector(".search-name");
+                if (nameInput) {
+                    let name = nameInput.value.toLowerCase();
+                    tr.style.display = name.includes(input) ? "" : "none";
+                }
+            });
+        }
+        
         function addSoldier() {
             let id = document.getElementById('newId').value; let rank = document.getElementById('newRank').value; let trade = document.getElementById('newTrade').value; let name = document.getElementById('newName').value;
             if(!id || !name) return alert("নম্বর এবং নাম দিন!");
             soldiersObjList.push({ id: id, rank: rank, trade: trade, name: name, role: "General", appointment: "", status: "active", leaveUntil: "", displayName: `${rank} (${trade}) ${name}` });
             renderManageTable(); document.getElementById('newId').value = ''; document.getElementById('newName').value = '';
         }
+        
         function saveAllStaff() {
             for(let i=0; i<soldiersObjList.length; i++) {
+                if(!soldiersObjList[i]) continue;
                 let oldName = soldiersObjList[i].displayName;
                 soldiersObjList[i].id = document.getElementById(`editId_${i}`).value; soldiersObjList[i].rank = document.getElementById(`editRank_${i}`).value;
                 soldiersObjList[i].trade = document.getElementById(`editTrade_${i}`).value; soldiersObjList[i].name = document.getElementById(`editName_${i}`).value;
                 soldiersObjList[i].appointment = document.getElementById(`appt_${i}`).value; soldiersObjList[i].role = document.getElementById(`role_${i}`).value;
                 soldiersObjList[i].status = document.getElementById(`status_${i}`).value; soldiersObjList[i].leaveUntil = document.getElementById(`status_${i}`).value === 'leave' ? document.getElementById(`leaveEnd_${i}`).value : "";
                 soldiersObjList[i].displayName = `${soldiersObjList[i].rank} (${soldiersObjList[i].trade}) ${soldiersObjList[i].name}`;
-                if (oldName !== soldiersObjList[i].displayName) { for(let date in rosterData) { for(let key in rosterData[date]) { if(rosterData[date][key] === oldName) rosterData[date][key] = soldiersObjList[i].displayName; } } }
+                if (oldName !== soldiersObjList[i].displayName) { 
+                    for(let date in rosterData) { for(let key in rosterData[date]) { if(rosterData[date][key] === oldName) rosterData[date][key] = soldiersObjList[i].displayName; } } 
+                }
             }
             saveStateToFirebase(); closeModal('manageModal'); alert("✅ ডাটাবেসে সেভ হয়েছে!");
         }
 
         // ================= Details & Reports =================
-        function showDetails(type) { closeModal('detailsModal'); }
-        function openReportModal() { document.getElementById('reportModal').style.display = "block"; }
-        function generateReport() {}
+        function showDetails(type) {
+            let filtered = []; let title = "";
+            if (type === 'total') { filtered = soldiersObjList; title = "মোট জনবল"; }
+            else if (type === 'active') { filtered = soldiersObjList.filter(s => s && s.status === 'active' && (!s.appointment || s.appointment === "General")); title = "হসপিটাল ডিউটি"; }
+            else if (type === 'leave') { filtered = soldiersObjList.filter(s => s && s.status === 'leave'); title = "ছুটি (Leave)"; }
+            else if (type === 'td') { filtered = soldiersObjList.filter(s => s && (s.status === 'td' || s.status === 'course')); title = "টিডি / কোর্স"; }
+            else if (type === 'admin') { filtered = soldiersObjList.filter(s => s && s.appointment && s.appointment !== "General"); title = "অ্যাডমিন / স্পেশাল"; }
+            
+            let tbody = document.querySelector('#detailsTable tbody'); tbody.innerHTML = '';
+            document.querySelector('#detailsTable thead').innerHTML = `<tr><th>সেনা নং</th><th>পদবি ও নাম</th><th>স্ট্যাটাস/অ্যাপয়েন্টমেন্ট</th></tr>`;
+            filtered.forEach(s => {
+                if(!s) return;
+                tbody.innerHTML += `<tr><td>${s.id||''}</td><td>${s.displayName}</td><td>${s.status==='leave'?'Leave till '+s.leaveUntil : (s.appointment? s.appointment : 'Active')}</td></tr>`;
+            });
+            document.getElementById('detailsTitle').innerText = title;
+            document.getElementById('detailsModal').style.display = "block";
+        }
+        
+        function openReportModal() { document.getElementById('reportModal').style.display = "block"; generateReport(); }
+        
+        function generateReport() {
+            let monthStr = document.getElementById('reportMonth').value;
+            let search = document.getElementById('reportSearch').value.toLowerCase();
+            let tbody = document.querySelector('#reportTable tbody'); tbody.innerHTML = '';
+            
+            let reportData = {};
+            soldiersObjList.forEach(s => { if(s && s.displayName) reportData[s.displayName] = { count: 0, dates: [] }; });
+            
+            for(let date in rosterData) {
+                if(monthStr && !date.startsWith(monthStr)) continue;
+                for(let key in rosterData[date]) {
+                    let name = rosterData[date][key];
+                    if(name && reportData[name]) {
+                        reportData[name].count++;
+                        let shift = key.split('_')[1];
+                        reportData[name].dates.push(`${date} (${shift})`);
+                    }
+                }
+            }
+            
+            for(let name in reportData) {
+                if(search && !name.toLowerCase().includes(search)) continue;
+                if(reportData[name].count > 0 || !search) {
+                    tbody.innerHTML += `<tr><td><strong>${name}</strong></td><td><span style="background:var(--accent); color:white; padding:3px 8px; border-radius:10px;">${reportData[name].count} টি</span></td><td style="font-size:12px;">${reportData[name].dates.join(', ')}</td></tr>`;
+                }
+            }
+        }
 
         // ================= Document Exports =================
         function getSmartFileName(extension) {
             let d = new Date(activeDates[0]); let mNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             return `Duty_Roster_${mNames[d.getMonth()]}_${d.getFullYear()}_Date_${activeDates[0]}.${extension}`;
         }
+        
         function exportToWord() {
             const clone = document.getElementById('captureArea').cloneNode(true);
             clone.querySelectorAll('.slot-controls, .clear-btn, .remove-col').forEach(e => e.remove());
@@ -534,6 +720,7 @@
             let link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(['\ufeff', preHtml + clone.innerHTML + "</body></html>"], { type: 'application/msword' })); 
             link.download = getSmartFileName('doc'); link.click();
         }
+        
         function exportToImage() {
             const clone = document.getElementById('captureArea').cloneNode(true);
             clone.style.position = 'absolute'; clone.style.top = '-9999px'; clone.style.background = 'white'; clone.style.width = '14in';
