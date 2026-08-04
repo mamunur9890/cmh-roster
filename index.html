@@ -264,7 +264,6 @@
             { name: "OPD", shifts: ["F-WD/CHILD-OPD", "CWC-1", "CWC-2", "CWC-3", "MED OPD/NIC LAB OPD", "SKIN/ SURG /ORTHO /SSR", "EYE-OPD", "ENT – OPD", "WD/M OFFICE"] }
         ];
 
-        // Sanitize keys for Firebase compatibility (removes /, ., #, $, [, ], and replaces spaces)
         function cleanKey(str) {
             if (!str) return "";
             return str.replace(/[/.#$\[\]]/g, "_").replace(/\s+/g, "_");
@@ -386,8 +385,9 @@
             let total = soldiersObjList.length; let active = 0, leave = 0, td = 0, admin = 0;
             soldiersObjList.forEach(s => {
                 if(!s) return;
-                if (s.status === 'leave') leave++;
-                else if (s.status === 'td' || s.status === 'course') td++; 
+                let st = (s.status || "").toLowerCase().trim();
+                if (st === 'leave') leave++;
+                else if (st === 'td' || st === 'course' || st.includes('td') || st.includes('course')) td++; 
                 else if (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General") admin++;
                 else active++;
             });
@@ -539,7 +539,8 @@
                     let soldierName = rosterData[sourceDate][key];
                     if (soldierName && soldierName.trim() !== "") {
                         let soldierObj = soldiersObjList.find(s => s && s.displayName === soldierName);
-                        if (soldierObj && !soldierObj.appointment && soldierObj.status === 'active') {
+                        let st = soldierObj ? (soldierObj.status || "").toLowerCase().trim() : "";
+                        if (soldierObj && !soldierObj.appointment && st === 'active') {
                             if (!rosterData[targetDate][key] || rosterData[targetDate][key].trim() === "") {
                                 rosterData[targetDate][key] = soldierName; assignedCount++;
                             }
@@ -566,7 +567,8 @@
             let freeStaff = soldiersObjList.filter(s => {
                 if(!s) return false;
                 let isAdmin = (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General");
-                let isUnavailable = (s.status === 'leave' || s.status === 'td' || s.status === 'course');
+                let st = (s.status || "").toLowerCase().trim();
+                let isUnavailable = (st === 'leave' || st === 'td' || st === 'course' || st.includes('td') || st.includes('course'));
                 return !(isAdmin || isUnavailable || assignedToday.includes(s.displayName));
             });
             let listHtml = '';
@@ -582,7 +584,9 @@
                     soldiersObjList.forEach(s => {
                         if(!s) return;
                         let isAdmin = (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General");
-                        if (!isAdmin && s.status !== 'td' && s.status !== 'leave' && s.status !== 'course') {
+                        let st = (s.status || "").toLowerCase().trim();
+                        let isUnavailable = (st === 'td' || st === 'course' || st.includes('td') || st.includes('course') || st === 'leave');
+                        if (!isAdmin && !isUnavailable) {
                             datalist.innerHTML += `<option value="${s.displayName}">`;
                         }
                     });
@@ -605,7 +609,8 @@
             let tbody = document.querySelector('#manageTable tbody'); tbody.innerHTML = '';
             soldiersObjList.forEach((s, i) => {
                 if(!s) return;
-                let showLeave = s.status === 'leave' ? 'block' : 'none'; 
+                let st = (s.status || "").toLowerCase().trim();
+                let showLeave = st === 'leave' ? 'block' : 'none'; 
                 tbody.innerHTML += `
                     <tr>
                         <td><input type="text" id="editId_${i}" value="${s.id || ''}"></td>
@@ -614,7 +619,7 @@
                         <td><input type="text" id="editName_${i}" value="${s.name || ''}" class="search-name"></td>
                         <td><input type="text" id="appt_${i}" value="${s.appointment || ''}"></td>
                         <td><select id="role_${i}"><option value="General" ${s.role==='General'?'selected':''}>General</option><option value="EC_Incharge" ${s.role==='EC_Incharge'?'selected':''}>E&C Incharge</option></select></td>
-                        <td><select id="status_${i}" onchange="document.getElementById('leaveWrap_${i}').style.display = (this.value==='leave')?'block':'none'"><option value="active" ${s.status==='active'?'selected':''}>Active</option><option value="leave" ${s.status==='leave'?'selected':''}>Leave</option><option value="td" ${s.status==='td'?'selected':''}>TD</option><option value="course" ${s.status==='course'?'selected':''}>Course</option></select></td>
+                        <td><select id="status_${i}" onchange="document.getElementById('leaveWrap_${i}').style.display = (this.value==='leave')?'block':'none'"><option value="active" ${st==='active'?'selected':''}>Active</option><option value="leave" ${st==='leave'?'selected':''}>Leave</option><option value="td" ${st==='td'||st.includes('td')?'selected':''}>TD</option><option value="course" ${st==='course'||st.includes('course')?'selected':''}>Course</option></select></td>
                         <td><div id="leaveWrap_${i}" style="display:${showLeave};"><input type="date" id="leaveEnd_${i}" value="${s.leaveUntil || ''}"></div></td>
                         <td><button onclick="if(confirm('মুছে ফেলবেন?')) { soldiersObjList.splice(${i},1); renderManageTable(); }" style="background:var(--danger); color:white; border:none; padding:5px; cursor:pointer;">✖</button></td>
                     </tr>`;
@@ -660,16 +665,17 @@
         function showDetails(type) {
             let filtered = []; let title = "";
             if (type === 'total') { filtered = soldiersObjList; title = "মোট জনবল"; }
-            else if (type === 'active') { filtered = soldiersObjList.filter(s => s && s.status === 'active' && (!s.appointment || s.appointment === "General")); title = "হসপিটাল ডিউটি"; }
-            else if (type === 'leave') { filtered = soldiersObjList.filter(s => s && s.status === 'leave'); title = "ছুটি (Leave)"; }
-            else if (type === 'td') { filtered = soldiersObjList.filter(s => s && (s.status === 'td' || s.status === 'course')); title = "টিডি / কোর্স"; }
+            else if (type === 'active') { filtered = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'active' && (!s.appointment || s.appointment === "General")); title = "হসপিটাল ডিউটি"; }
+            else if (type === 'leave') { filtered = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'leave'); title = "ছুটি (Leave)"; }
+            else if (type === 'td') { filtered = soldiersObjList.filter(s => s && ((s.status||'').toLowerCase() === 'td' || (s.status||'').toLowerCase() === 'course' || (s.status||'').toLowerCase().includes('td') || (s.status||'').toLowerCase().includes('course'))); title = "টিডি / কোর্স"; }
             else if (type === 'admin') { filtered = soldiersObjList.filter(s => s && s.appointment && s.appointment !== "General"); title = "অ্যাডমিন / স্পেশাল"; }
             
             let tbody = document.querySelector('#detailsTable tbody'); tbody.innerHTML = '';
             document.querySelector('#detailsTable thead').innerHTML = `<tr><th>সেনা নং</th><th>পদবি ও নাম</th><th>স্ট্যাটাস/অ্যাপয়েন্টমেন্ট</th></tr>`;
             filtered.forEach(s => {
                 if(!s) return;
-                tbody.innerHTML += `<tr><td>${s.id||''}</td><td>${s.displayName}</td><td>${s.status==='leave'?'Leave till '+s.leaveUntil : (s.appointment? s.appointment : 'Active')}</td></tr>`;
+                let st = (s.status || "").toLowerCase();
+                tbody.innerHTML += `<tr><td>${s.id||''}</td><td>${s.displayName}</td><td>${st==='leave'?'Leave till '+s.leaveUntil : (s.appointment? s.appointment : (st==='td'||st==='course'||st.includes('td')||st.includes('course')? s.status.toUpperCase() : 'Active'))}</td></tr>`;
             });
             document.getElementById('detailsTitle').innerText = title;
             document.getElementById('detailsModal').style.display = "block";
@@ -691,15 +697,17 @@
                     let name = rosterData[date][key];
                     if(name && reportData[name]) {
                         reportData[name].count++;
-                        let shift = key.split('_')[1];
-                        reportData[name].dates.push(`${date} (${shift})`);
+                        let shiftParts = key.split('_');
+                        let shiftName = shiftParts.length > 1 ? shiftParts[1] : "";
+                        reportData[name].dates.push(`${date} (${shiftName})`);
                     }
                 }
             }
             
             for(let name in reportData) {
                 if(search && !name.toLowerCase().includes(search)) continue;
-                if(reportData[name].count > 0 || !search) {
+                // Only show personnel who have at least 1 duty assigned
+                if(reportData[name].count > 0) {
                     tbody.innerHTML += `<tr><td><strong>${name}</strong></td><td><span style="background:var(--accent); color:white; padding:3px 8px; border-radius:10px;">${reportData[name].count} টি</span></td><td style="font-size:12px;">${reportData[name].dates.join(', ')}</td></tr>`;
                 }
             }
