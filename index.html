@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMH Savar - Pro Duty Roster System (Online)</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #1a252f; --secondary: #2c3e50; --accent: #3498db; 
+            --success: #2ecc71; --warning: #f1c40f; --danger: #e74c3c;
+            --morning: #e8f4f8; --evening: #fcf3cf; --night: #f9ebea;
+            --bg-light: #ecf0f1;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #bdc3c7; margin: 0; padding: 15px; font-size: 14px; color: #333; overflow-x: hidden; }
+        
+        .dashboard { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
+        .stat-card { background: white; padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex: 1; min-width: 150px; text-align: center; border-bottom: 5px solid var(--accent); cursor: pointer; transition: 0.2s; position: relative; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); background: #fdfdfd; }
+        .stat-card h3 { margin: 0 0 5px; font-size: 24px; color: var(--primary); }
+        .stat-card p { margin: 0; font-size: 13px; font-weight: bold; color: #7f8c8d; }
+        .c-total { border-color: var(--accent); } .c-active { border-color: var(--success); }
+        .c-leave { border-color: var(--warning); } .c-td { border-color: #9b59b6; } .c-admin { border-color: var(--danger); }
+
+        .toolbar { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .btn { padding: 8px 14px; font-size: 13px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-manage { background-color: var(--secondary); } 
+        .btn-auto { background-color: #27ae60; }
+        .btn-word { background-color: #2980b9; }
+        .btn-image { background-color: #d35400; }
+        .btn-sidebar { background-color: #8e44ad; }
+        .btn-report { background-color: #16a085; }
+        .btn-login { background-color: #c0392b; }
+
+        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;}
+        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--accent); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .sidebar { position: fixed; right: -320px; top: 0; width: 280px; height: 100%; background: #fff; box-shadow: -4px 0 15px rgba(0,0,0,0.2); transition: right 0.3s ease; z-index: 2000; display: flex; flex-direction: column; }
+        .sidebar.active { right: 0; }
+        .sidebar-header { background: var(--primary); color: white; padding: 15px; font-size: 16px; font-weight: bold; display: flex; flex-direction: column; gap: 5px; }
+        .close-sidebar { cursor: pointer; font-size: 20px; color: #ffcccc; float: right; margin-top: -5px; }
+        .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; background: var(--bg-light); }
+        .drag-item { background: white; padding: 10px; margin-bottom: 8px; border-left: 4px solid var(--success); border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: grab; font-weight: bold; font-size: 13px; color: #2c3e50; display: flex; justify-content: space-between; }
+        
+        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-content { background-color: #fff; margin: 3% auto; padding: 25px; border-radius: 10px; width: 95%; max-width: 1100px; max-height: 85vh; overflow-y: auto; position: relative; }
+        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #7f8c8d; }
+        
+        .manage-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .manage-table th { background: var(--secondary); color: white; padding: 12px; font-size: 13px; position: sticky; top: 0; z-index: 2; }
+        .manage-table td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; }
+        .manage-table input, .manage-table select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; width: 90%; font-size: 12px; }
+        .bulk-save-btn { background: var(--success); color: white; font-size: 16px; padding: 10px 30px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; position: sticky; bottom: -20px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
+
+        .details-table th { background: var(--accent); }
+        .details-table td { text-align: left; padding: 10px; }
+
+        .table-wrapper { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow-x: auto; max-height: 70vh; overflow-y: auto; border: 1px solid #ddd; }
+        .header-title { text-align: center; font-weight: 900; font-size: 20px; margin-bottom: 15px; color: var(--primary); text-transform: uppercase; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; }
+        thead th { position: sticky; top: 0; background-color: var(--primary); color: white; z-index: 10; padding: 10px; font-size: 14px; border: 1px solid #34495e; }
+        th, td { border: 1px solid #ccc; padding: 5px; text-align: center; vertical-align: middle; height: 38px; }
+        .dept-header { background-color: #d6eaf8 !important; font-weight: bold; text-align: left; padding-left: 10px; font-size: 15px; }
+        .shift-label { text-align: left; padding-left: 10px; font-weight: bold; white-space: nowrap; }
+        .row-Morning td { background-color: var(--morning); } .row-Evening td { background-color: var(--evening); } .row-Night td { background-color: var(--night); }
+
+        .date-picker { padding: 4px; font-size: 14px; font-weight: bold; border: 1px solid #fff; border-radius: 3px; text-align: center; background: rgba(255,255,255,0.2); color: white; outline: none; }
+        
+        .input-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; background: white; border: 1px solid #bbb; border-radius: 4px; overflow: hidden; transition: 0.2s; }
+        .input-wrapper.drag-over { border: 2px dashed var(--success); background: #e9f7ef; transform: scale(1.02); }
+        input[type="text"].soldier-input { width: 85%; padding: 8px 6px; font-size: 13px; border: none; outline: none; background: transparent; font-weight: bold; color: #2c3e50; cursor: grab; }
+        .clear-btn { color: #c0392b; cursor: pointer; font-size: 14px; font-weight: bold; width: 15%; user-select: none; border-left: 1px solid #ddd; background: #f9f9f9; padding: 7px 0; }
+        .slot-controls { float: right; cursor: pointer; font-size: 12px; }
+
+        @media print {
+            @page { size: legal landscape; margin: 0.5in; }
+            .dashboard, .toolbar, .slot-controls, .clear-btn, .sidebar, .modal, .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .table-wrapper { box-shadow: none; border: none; max-height: none; overflow: visible; padding: 0; }
+            input[type="text"].soldier-input { border: none; width: 100%; padding: 0; }
+            .input-wrapper { border: none; }
+            thead th { position: static; color: black !important; background-color: #eee !important; border: 1px solid #000; }
+            th, td { border: 1px solid #000 !important; }
+            .dept-header { background-color: #d6eaf8 !important; -webkit-print-color-adjust: exact; color: black; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen (With Error Handling) -->
+    <div id="loadingOverlay">
+        <div class="spinner" id="spinnerIcon"></div>
+        <h3 id="loadingText" style="color: var(--primary); margin-top: 15px;">অনলাইন সার্ভার থেকে ডাটা লোড হচ্ছে...</h3>
+        <p id="errorText" style="color: var(--danger); font-weight: bold; margin-top: 10px;"></p>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="dashboard">
+        <div class="stat-card c-total" onclick="showDetails('total')"><h3 id="statTotal">0</h3><p>মোট জনবল</p></div>
+        <div class="stat-card c-active" onclick="showDetails('active')"><h3 id="statActive">0</h3><p>হসপিটাল ডিউটি</p></div>
+        <div class="stat-card c-leave" onclick="showDetails('leave')"><h3 id="statLeave">0</h3><p>ছুটি (Leave)</p></div>
+        <div class="stat-card c-td" onclick="showDetails('td')"><h3 id="statTD">0</h3><p>টিডি / কোর্স</p></div>
+        <div class="stat-card c-admin" onclick="showDetails('admin')"><h3 id="statAdmin">0</h3><p>অ্যাডমিন / স্পেশাল</p></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button id="loginBtn" class="btn btn-login" onclick="toggleLogin()">🔒 লগইন (এডিট)</button>
+        <button class="btn btn-manage" onclick="authCheck(openManageModal)">⚙️ ম্যানপাওয়ার ম্যানেজমেন্ট</button>
+        <button class="btn btn-auto" onclick="authCheck(autoAssignAllDuties)">⚡ অটো ডিউটি সেট</button>
+        <button class="btn btn-sidebar" onclick="toggleSidebar()">👥 ফাঁকা জনবল</button>
+        <button class="btn btn-word" onclick="authCheck(addDateColumn)" style="background-color: #34495e;">➕ দিন যোগ</button>
+        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;"></div>
+        <button class="btn btn-report" onclick="openReportModal()">📊 মাসিক রিপোর্ট</button>
+        <button class="btn btn-word" onclick="exportToWord()">📄 ওয়ার্ড</button>
+        <button class="btn btn-image" onclick="exportToImage()">📸 ছবি (PNG)</button>
+        <button class="btn btn-manage" onclick="window.print()">🖨️ প্রিন্ট</button>
+    </div>
+
+    <!-- Sidebar for Free Staff -->
+    <div id="freeStaffSidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div style="width: 100%;"><span>ফাঁকা জনবলের তালিকা</span><span class="close-sidebar" onclick="toggleSidebar()">✖</span></div>
+            <div style="font-size: 13px; color: #f1c40f; margin-top: 5px;">তারিখ: <span id="sidebarDateDisplay"></span></div>
+        </div>
+        <div class="sidebar-content" id="freeStaffList"></div>
+    </div>
+
+    <!-- Manage Modal -->
+    <div id="manageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('manageModal')">&times;</span>
+            <h2 style="color: var(--primary); margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 10px;">⚙️ ম্যানপাওয়ার ম্যানেজমেন্ট</h2>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; background: var(--bg-light); padding: 15px; border-radius: 5px; flex-wrap: wrap; align-items: center;">
+                <strong>➕ নতুন যোগ করুন: </strong>
+                <input type="text" id="newId" placeholder="সেনা নং" style="padding: 6px; width: 100px;">
+                <select id="newRank" style="padding: 6px;"><option value="SWO">SWO</option><option value="WO">WO</option><option value="Sgt">Sgt</option><option value="Cpl">Cpl</option><option value="Lcpl">Lcpl</option><option value="Snk" selected>Snk</option></select>
+                <select id="newTrade" style="padding: 6px;"><option value="MA" selected>MA</option><option value="ICA">ICA</option><option value="OTA">OTA</option><option value="PMA">PMA</option><option value="F/A">F/A</option><option value="STA">STA</option><option value="RETD">RETD</option><option value="Other">Other</option></select>
+                <input type="text" id="newName" placeholder="নাম" style="padding: 6px; width: 150px;">
+                <button class="btn btn-manage" onclick="addSoldier()">যুক্ত করুন</button>
+                <div style="margin-left: auto;">
+                    <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="🔍 খুঁজুন..." style="padding: 8px; width: 250px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+            </div>
+
+            <table class="manage-table" id="manageTable">
+                <thead>
+                    <tr><th>সেনা নং</th><th>পদবি</th><th>ট্রেড</th><th>নাম</th><th>অ্যাপয়েন্টমেন্ট</th><th>ইনচার্জ (রোল)</th><th>স্ট্যাটাস</th><th>ছুটি যোগদান</th><th>মুছুন</th></tr>
+                </thead>
+                <tbody><!-- JS Render --></tbody>
+            </table>
+            <button class="bulk-save-btn" onclick="saveAllStaff()">💾 সমস্ত আপডেট সেভ করুন</button>
+        </div>
+    </div>
+
+    <!-- Drill-down Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-modal" onclick="closeModal('detailsModal')">&times;</span>
+            <h2 id="detailsTitle" style="color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-top: 0;">তালিকা</h2>
+            <table class="manage-table details-table" id="detailsTable"><thead></thead><tbody></tbody></table>
+        </div>
+    </div>
+    
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close-modal" onclick="closeModal('reportModal')">&times;</span>
+            <h2 style="color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-top: 0;">📊 মাসিক ডিউটি রিপোর্ট</h2>
+            <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; background: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <div><strong>মাস নির্বাচন করুন: </strong><input type="month" id="reportMonth" style="padding: 8px;" onchange="generateReport()"></div>
+                <div style="margin-left: auto;"><strong>সৈনিক খুঁজুন: </strong><input type="text" id="reportSearch" placeholder="🔍 নাম বা পদবি লিখুন..." style="padding: 8px; width: 250px;" onkeyup="generateReport()"></div>
+            </div>
+            <table class="manage-table details-table" id="reportTable"><thead><tr><th>নাম ও পদবি</th><th style="width: 120px;">মোট ডিউটি</th><th>ডিউটির তারিখ ও শিফট</th></tr></thead><tbody></tbody></table>
+        </div>
+    </div>
+
+    <!-- Table Area -->
+    <div class="table-wrapper" id="captureArea">
+        <div class="header-title">MORNING-EVENING & NIGHT-DUTY (MA)<br>CMH SAVAR</div>
+        <div id="datalists-container"></div>
+        <table id="rosterTable">
+            <thead><!-- JS --></thead>
+            <tbody><!-- JS --></tbody>
+        </table>
+    </div>
+
+    <script>
+        // ================= Firebase Configuration =================
+        const firebaseConfig = {
+            apiKey: "AIzaSyApS9kOkEEJvfsXH2meepvR3iN0Wa1M7Ok",
+            authDomain: "cmh-savar-roster.firebaseapp.com",
+            databaseURL: "https://cmh-savar-roster-default-rtdb.firebaseio.com",
+            projectId: "cmh-savar-roster",
+            storageBucket: "cmh-savar-roster.firebasestorage.app",
+            messagingSenderId: "65847251698",
+            appId: "1:65847251698:web:712e9aa22af164d5def66b",
+            measurementId: "G-JWFJK4454Y"
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        // ================= Default Backup Data =================
+        const defaultRawData = [
+            { id: "Bjo-73300", rank: "SWO", name: "Md Akram Hossain", appointment: "", status: "leave" },
+            { id: "Bjo-73406", rank: "SWO", name: "Md Asaduzzaman Nur", appointment: "Ward Master", status: "active" },
+            { id: "Bjo-73359", rank: "WO", name: "Aminul Islam", appointment: "A/SJCO", status: "active" },
+            { id: "2008637", rank: "Sgt", name: "Saidur Rahman", appointment: "Canteen NCO", status: "active" },
+            { id: "2008639", rank: "Sgt", name: "Nazrul Islam", appointment: "CIV INCHARGE", status: "active" },
+            { id: "2009461", rank: "Sgt", name: "Abdullah Al Mamun", appointment: "", status: "leave" },
+            { id: "2009824", rank: "Sgt", name: "Mostofa", appointment: "CSM", status: "active" },
+            { id: "2010318", rank: "Sgt", name: "Arif", appointment: "Hellers Pharmacy", status: "active" },
+            { id: "2014175", rank: "Snk", name: "Hridoy", appointment: "Dialysis", status: "active" },
+            { id: "2016587", rank: "Snk", name: "Jobaida Akter Rotna", appointment: "", status: "active" }
+        ];
+
+        // ================= Application State =================
+        let soldiersObjList = [];
+        let slotCounts = {};
+        let rosterData = {};
+        let activeDates = [];
+        let currentSidebarDate = "";
+        let isDataLoaded = false;
+        
+        let isAdminLoggedIn = false;
+        const ADMIN_PIN = "9890";
+
+        function toggleLogin() {
+            if (isAdminLoggedIn) {
+                isAdminLoggedIn = false;
+                document.getElementById('loginBtn').innerText = "🔒 লগইন (এডিট)";
+                document.getElementById('loginBtn').style.backgroundColor = "#c0392b";
+                alert("আপনি লগআউট হয়েছেন। এখন থেকে শুধু দেখতে পারবেন।");
+            } else {
+                let pin = prompt("এডিট করার জন্য অ্যাডমিন পিন (PIN) দিন:");
+                if (pin === ADMIN_PIN) {
+                    isAdminLoggedIn = true;
+                    document.getElementById('loginBtn').innerText = "🔓 অ্যাডমিন (লগআউট)";
+                    document.getElementById('loginBtn').style.backgroundColor = "#27ae60";
+                    alert("লগইন সফল! এখন আপনি ডিউটি পরিবর্তন করতে পারবেন।");
+                } else if(pin !== null) { alert("ভুল পিন! দয়া করে সঠিক পিন দিন।"); }
+            }
+        }
+
+        function authCheck(func) {
+            if (!isAdminLoggedIn) { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করে পিন দিন।"); return; }
+            func();
+        }
+
+        const rankValue = { "SWO": 1, "WO": 2, "Sgt": 3, "Cpl": 4, "Lcpl": 5, "Snk": 6 };
+
+        const deptsConfig = [
+            { name: "E&C DEPT", shifts: ["Morning", "Evening", "Night"] },
+            { name: "ICU/POST OP/HDU", shifts: ["Morning", "Evening", "Night"] },
+            { name: "MED-WD/OFFRS WD", shifts: ["Morning", "Evening", "Night"] },
+            { name: "SURG-WD", shifts: ["Morning", "Evening", "Night"] },
+            { name: "NON FLU-DUTY", shifts: ["NON FLU-DUTY"] },
+            { name: "PTS SERIAL", shifts: ["PTS SERIAL"] },
+            { name: "OPD", shifts: ["F-WD/CHILD-OPD", "CWC-1", "CWC-2", "CWC-3", "MED OPD/NIC LAB OPD", "SKIN/ SURG /ORTHO /SSR", "EYE-OPD", "ENT – OPD", "WD/M OFFICE"] }
+        ];
+
+        // ================= Real-time Database Sync & Auto-Migration =================
+        
+        database.ref('/').on('value', (snapshot) => {
+            const data = snapshot.val();
+            document.getElementById('loadingOverlay').style.display = 'none'; // Hide loading screen
+
+            if (data && data.soldiersObjList) {
+                // Load data from cloud
+                soldiersObjList = data.soldiersObjList;
+                slotCounts = data.slotCounts || {};
+                rosterData = data.rosterData || {};
+                activeDates = data.activeDates || [];
+                if(!currentSidebarDate && activeDates.length > 0) currentSidebarDate = activeDates[0];
+            } else if (!isDataLoaded) {
+                // Cloud is empty! Migrate from Local Storage to prevent data loss.
+                let localSoldiers = JSON.parse(localStorage.getItem('cmhSoldiers_Final'));
+                if (localSoldiers && localSoldiers.length > 10) {
+                    // Restoring your hard work!
+                    soldiersObjList = localSoldiers;
+                    slotCounts = JSON.parse(localStorage.getItem('cmhSlotCounts_Final')) || {};
+                    rosterData = JSON.parse(localStorage.getItem('cmhRosterData_Final')) || {};
+                    activeDates = JSON.parse(localStorage.getItem('cmhActiveDates_Final')) || [];
+                } else {
+                    // Fresh start if no local data is found
+                    let today = new Date(); let tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
+                    activeDates = [today.toISOString().split('T')[0], tomorrow.toISOString().split('T')[0]];
+                    deptsConfig.forEach(d => d.shifts.forEach(s => slotCounts[d.name+"_"+s] = (s.includes("OPD")||s.includes("PTS")||s.includes("NON FLU"))?1:(s.includes("Morning")?3:2)));
+                    soldiersObjList = defaultRawData.map(s => ({
+                        id: s.id, rank: s.rank, trade: "MA", name: s.name, role: s.role || "General",
+                        appointment: s.appointment || "", status: s.status || "active", leaveUntil: "",
+                        displayName: `${s.rank} (MA) ${s.name}`
+                    }));
+                }
+                saveStateToFirebase(); // Push migrated/default data to Firebase
+            }
+            
+            isDataLoaded = true;
+            updateDashboard();
+            updateSidebar(currentSidebarDate);
+            renderTable();
+        }, (error) => {
+            // ERROR CATCHER: Displays exact reason if loading fails
+            document.getElementById('spinnerIcon').style.display = 'none';
+            document.getElementById('loadingText').style.color = '#c0392b';
+            document.getElementById('loadingText').innerText = "সার্ভারের সাথে কানেক্ট করা যাচ্ছে না!";
+            document.getElementById('errorText').innerHTML = `সমস্যা: ${error.message} <br><br> সমাধান: Firebase এর Rules ট্যাবে গিয়ে '.read' এবং '.write' দুটোই "true" করে Publish করা আছে কি না চেক করুন।`;
+        });
+
+        function saveStateToFirebase() {
+            if(!isDataLoaded) return; 
+            database.ref('/').set({ soldiersObjList: soldiersObjList, slotCounts: slotCounts, rosterData: rosterData, activeDates: activeDates });
+        }
+
+        // ================= Core Logic Methods =================
+
+        function updateDashboard() {
+            let total = soldiersObjList.length; let active = 0, leave = 0, td = 0, admin = 0;
+            soldiersObjList.forEach(s => {
+                if (s.status === 'leave') leave++;
+                else if (s.status === 'td' || s.status === 'course') td++; 
+                else if (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General") admin++;
+                else active++;
+            });
+            document.getElementById('statTotal').innerText = total; document.getElementById('statActive').innerText = active;
+            document.getElementById('statLeave').innerText = leave; document.getElementById('statTD').innerText = td; document.getElementById('statAdmin').innerText = admin;
+        }
+
+        function renderTable() {
+            const thead = document.querySelector('#rosterTable thead'); const tbody = document.querySelector('#rosterTable tbody');
+            let trHead = `<tr><th style="width: 25%;">Department & Shift</th>`; let dlHtml = '';
+            
+            activeDates.forEach((date, index) => {
+                trHead += `<th>
+                    <input type="date" class="date-picker" value="${date}" onchange="if(isAdminLoggedIn) changeDate(${index}, this.value); else { alert('লগইন করুন!'); this.value='${date}'; }">
+                    <div style="margin-top: 5px; display: flex; justify-content: center; gap: 5px;" class="no-print">
+                        <button onclick="openFreeStaffSidebar('${date}')" style="background:#8e44ad; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">👥 ফ্রি স্টাফ</button>
+                        ${activeDates.length > 1 ? `<button class="remove-col" style="background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;" onclick="authCheck(() => removeDateColumn(${index}))">✖</button>` : ''}
+                    </div>
+                </th>`;
+                dlHtml += `<datalist id="list_${date}"></datalist>`;
+            });
+            trHead += `</tr>`; thead.innerHTML = trHead; document.getElementById('datalists-container').innerHTML = dlHtml;
+            
+            let tbodyHtml = '';
+            deptsConfig.forEach(dept => {
+                tbodyHtml += `<tr><td colspan="${activeDates.length + 1}" class="dept-header">${dept.name}</td></tr>`;
+                dept.shifts.forEach(shift => {
+                    let key = dept.name + "_" + shift; 
+                    let count = slotCounts[key] !== undefined && slotCounts[key] >= 1 ? slotCounts[key] : 1; 
+                    let rowClass = shift.includes("Morning") || shift.includes("OPD") ? "row-Morning" : (shift.includes("Evening") ? "row-Evening" : "row-Night");
+                    
+                    for (let r = 0; r < count; r++) {
+                        tbodyHtml += `<tr class="${rowClass}">`;
+                        if (r === 0) tbodyHtml += `<td rowspan="${count}" class="shift-label">${shift} <div class="slot-controls"><span onclick="authCheck(()=>modifySlot('${key}', 1))">➕</span> <span onclick="authCheck(()=>modifySlot('${key}', -1))">➖</span></div></td>`;
+                        activeDates.forEach(date => {
+                            let slotKey = key + "_slot_" + r; let val = (rosterData[date] && rosterData[date][slotKey]) ? rosterData[date][slotKey] : "";
+                            tbodyHtml += `<td><div class="input-wrapper" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropCell(event, '${date}', '${slotKey}')">
+                                    <input type="text" list="list_${date}" value="${val}" placeholder="নাম দিন" draggable="true" ondragstart="dragStart(event, this.value, '${date}', '${slotKey}')" onchange="manualInputSave('${date}', '${slotKey}', this.value)" class="soldier-input">
+                                    <span class="clear-btn" onclick="authCheck(()=>clearInput('${date}', '${slotKey}'))">✖</span></div></td>`;
+                        });
+                        tbodyHtml += `</tr>`;
+                    }
+                });
+            });
+            tbody.innerHTML = tbodyHtml; 
+            updateDatalists();
+        }
+
+        // ================= Drag & Drop / Input Handling =================
+
+        function dragStart(ev, name, date, key) { 
+            if(!isAdminLoggedIn) { ev.preventDefault(); alert("এডিট করতে লগইন করুন!"); return; }
+            ev.dataTransfer.setData("application/json", JSON.stringify({name: name, date: date, key: key})); 
+        }
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
+        function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
+        function dropCell(ev, targetDate, targetKey) {
+            ev.preventDefault(); ev.currentTarget.classList.remove('drag-over'); 
+            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); return; }
+            let dataStr = ev.dataTransfer.getData("application/json");
+            if(dataStr) {
+                let data = JSON.parse(dataStr); let name = data.name; let sourceDate = data.date; let sourceKey = data.key;
+                if(!name) return; 
+                if(sourceDate === targetDate && sourceKey && sourceKey !== targetKey) rosterData[sourceDate][sourceKey] = ""; 
+                if (!rosterData[targetDate]) rosterData[targetDate] = {}; rosterData[targetDate][targetKey] = name; 
+                saveStateToFirebase();
+            }
+        }
+        function clearInput(date, key) { if(rosterData[date] && rosterData[date][key]) { rosterData[date][key] = ""; saveStateToFirebase(); } }
+        function manualInputSave(date, key, val) { 
+            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); renderTable(); return; } 
+            if (!rosterData[date]) rosterData[date] = {}; rosterData[date][key] = val.trim(); saveStateToFirebase(); 
+        }
+        function changeDate(index, newDate) { if (newDate) { activeDates[index] = newDate; saveStateToFirebase(); } }
+        function modifySlot(key, delta) { if (slotCounts[key] + delta >= 1) { slotCounts[key] += delta; saveStateToFirebase(); } }
+        function addDateColumn() {
+            if(activeDates.length >= 7) return alert("সর্বোচ্চ ৭ দিনের রোস্টার সম্ভব।");
+            let lastDate = new Date(activeDates[activeDates.length - 1]); lastDate.setDate(lastDate.getDate() + 1);
+            activeDates.push(lastDate.toISOString().split('T')[0]); saveStateToFirebase();
+        }
+        function removeDateColumn(index) { if(activeDates.length > 1) { activeDates.splice(index, 1); saveStateToFirebase(); } else alert("অন্তত একটি দিন থাকতে হবে!"); }
+        
+        function autoAssignAllDuties() {
+            if (activeDates.length < 2) return alert("অটো-অ্যাসাইন করার জন্য অন্তত ২টি কলাম থাকতে হবে!");
+            let targetDate = activeDates[activeDates.length - 1]; let sourceDate = activeDates[activeDates.length - 2];
+            if (!rosterData[targetDate]) rosterData[targetDate] = {}; let assignedCount = 0;
+
+            if (rosterData[sourceDate]) {
+                for (let key in rosterData[sourceDate]) {
+                    let soldierName = rosterData[sourceDate][key];
+                    if (soldierName && soldierName.trim() !== "") {
+                        let soldierObj = soldiersObjList.find(s => s.displayName === soldierName);
+                        if (soldierObj && !soldierObj.appointment && soldierObj.status === 'active') {
+                            if (!rosterData[targetDate][key] || rosterData[targetDate][key].trim() === "") {
+                                rosterData[targetDate][key] = soldierName; assignedCount++;
+                            }
+                        }
+                    }
+                }
+            }
+            if (assignedCount > 0) { alert(`✅ অটো-অ্যাসাইন সফল!`); saveStateToFirebase(); } 
+            else alert("⚠️ কপি করার মতো আগের দিনের কোনো ডিউটি রেকর্ড পাওয়া যায়নি!");
+        }
+
+        // ================= Sidebar & Modals =================
+        function toggleSidebar() { 
+            let sb = document.getElementById('freeStaffSidebar'); 
+            if (sb.classList.contains('active')) sb.classList.remove('active'); 
+            else { updateSidebar(currentSidebarDate || activeDates[0]); sb.classList.add('active'); } 
+        }
+        function openFreeStaffSidebar(date) { updateSidebar(date); document.getElementById('freeStaffSidebar').classList.add('active'); }
+        function updateSidebar(targetDate) {
+            if (!targetDate) targetDate = currentSidebarDate || activeDates[0];
+            currentSidebarDate = targetDate; document.getElementById('sidebarDateDisplay').innerText = targetDate;
+            let assignedToday = [];
+            if(rosterData[targetDate]) Object.values(rosterData[targetDate]).forEach(n => { if(n) assignedToday.push(n.trim()); }); 
+            let freeStaff = soldiersObjList.filter(s => {
+                let isAdmin = (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General");
+                let isUnavailable = (s.status === 'leave' || s.status === 'td' || s.status === 'course');
+                return !(isAdmin || isUnavailable || assignedToday.includes(s.displayName));
+            });
+            let listHtml = '';
+            freeStaff.forEach(s => { listHtml += `<div class="drag-item" draggable="true" ondragstart="dragStart(event, '${s.displayName}', null, null)"><span>${s.displayName}</span> <span>🔀</span></div>`; });
+            document.getElementById('freeStaffList').innerHTML = listHtml || `<div style="text-align:center; color:red; padding:20px;">সবাই ডিউটিতে আছে!</div>`;
+        }
+        function updateDatalists() {
+            activeDates.forEach(date => {
+                let datalist = document.getElementById(`list_${date}`);
+                if(datalist) {
+                    datalist.innerHTML = '';
+                    soldiersObjList.forEach(s => {
+                        let isAdmin = (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General");
+                        if (!isAdmin && s.status !== 'td' && s.status !== 'leave' && s.status !== 'course') datalist.innerHTML += `<option value="${s.displayName}">`;
+                    });
+                }
+            });
+        }
+        
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        function openManageModal() {
+            soldiersObjList.sort((a, b) => (rankValue[a.rank] || 99) - (rankValue[b.rank] || 99));
+            document.getElementById('manageModal').style.display = "block"; renderManageTable();
+        }
+        function renderManageTable() {
+            let tbody = document.querySelector('#manageTable tbody'); tbody.innerHTML = '';
+            soldiersObjList.forEach((s, i) => {
+                let showLeave = s.status === 'leave' ? 'block' : 'none'; 
+                tbody.innerHTML += `
+                    <tr>
+                        <td><input type="text" id="editId_${i}" value="${s.id || ''}"></td>
+                        <td><select id="editRank_${i}"><option value="SWO" ${s.rank==='SWO'?'selected':''}>SWO</option><option value="WO" ${s.rank==='WO'?'selected':''}>WO</option><option value="Sgt" ${s.rank==='Sgt'?'selected':''}>Sgt</option><option value="Cpl" ${s.rank==='Cpl'?'selected':''}>Cpl</option><option value="Lcpl" ${s.rank==='Lcpl'?'selected':''}>Lcpl</option><option value="Snk" ${s.rank==='Snk'?'selected':''}>Snk</option></select></td>
+                        <td><select id="editTrade_${i}"><option value="MA" ${s.trade==='MA'?'selected':''}>MA</option><option value="ICA" ${s.trade==='ICA'?'selected':''}>ICA</option><option value="STA" ${s.trade==='STA'?'selected':''}>STA</option></select></td>
+                        <td><input type="text" id="editName_${i}" value="${s.name || ''}" class="search-name"></td>
+                        <td><input type="text" id="appt_${i}" value="${s.appointment || ''}"></td>
+                        <td><select id="role_${i}"><option value="General" ${s.role==='General'?'selected':''}>General</option><option value="EC_Incharge" ${s.role==='EC_Incharge'?'selected':''}>E&C Incharge</option></select></td>
+                        <td><select id="status_${i}" onchange="document.getElementById('leaveWrap_${i}').style.display = (this.value==='leave')?'block':'none'"><option value="active" ${s.status==='active'?'selected':''}>Active</option><option value="leave" ${s.status==='leave'?'selected':''}>Leave</option><option value="td" ${s.status==='td'?'selected':''}>TD</option><option value="course" ${s.status==='course'?'selected':''}>Course</option></select></td>
+                        <td><div id="leaveWrap_${i}" style="display:${showLeave};"><input type="date" id="leaveEnd_${i}" value="${s.leaveUntil || ''}"></div></td>
+                        <td><button onclick="if(confirm('মুছে ফেলবেন?')) { soldiersObjList.splice(${i},1); renderManageTable(); }" style="background:var(--danger); color:white; border:none; padding:5px; cursor:pointer;">✖</button></td>
+                    </tr>`;
+            });
+        }
+        function searchTable() { /* Local search */ }
+        function addSoldier() {
+            let id = document.getElementById('newId').value; let rank = document.getElementById('newRank').value; let trade = document.getElementById('newTrade').value; let name = document.getElementById('newName').value;
+            if(!id || !name) return alert("নম্বর এবং নাম দিন!");
+            soldiersObjList.push({ id: id, rank: rank, trade: trade, name: name, role: "General", appointment: "", status: "active", leaveUntil: "", displayName: `${rank} (${trade}) ${name}` });
+            renderManageTable(); document.getElementById('newId').value = ''; document.getElementById('newName').value = '';
+        }
+        function saveAllStaff() {
+            for(let i=0; i<soldiersObjList.length; i++) {
+                let oldName = soldiersObjList[i].displayName;
+                soldiersObjList[i].id = document.getElementById(`editId_${i}`).value; soldiersObjList[i].rank = document.getElementById(`editRank_${i}`).value;
+                soldiersObjList[i].trade = document.getElementById(`editTrade_${i}`).value; soldiersObjList[i].name = document.getElementById(`editName_${i}`).value;
+                soldiersObjList[i].appointment = document.getElementById(`appt_${i}`).value; soldiersObjList[i].role = document.getElementById(`role_${i}`).value;
+                soldiersObjList[i].status = document.getElementById(`status_${i}`).value; soldiersObjList[i].leaveUntil = document.getElementById(`status_${i}`).value === 'leave' ? document.getElementById(`leaveEnd_${i}`).value : "";
+                soldiersObjList[i].displayName = `${soldiersObjList[i].rank} (${soldiersObjList[i].trade}) ${soldiersObjList[i].name}`;
+                if (oldName !== soldiersObjList[i].displayName) { for(let date in rosterData) { for(let key in rosterData[date]) { if(rosterData[date][key] === oldName) rosterData[date][key] = soldiersObjList[i].displayName; } } }
+            }
+            saveStateToFirebase(); closeModal('manageModal'); alert("✅ ডাটাবেসে সেভ হয়েছে!");
+        }
+
+        // ================= Details & Reports =================
+        function showDetails(type) { closeModal('detailsModal'); }
+        function openReportModal() { document.getElementById('reportModal').style.display = "block"; }
+        function generateReport() {}
+
+        // ================= Document Exports =================
+        function getSmartFileName(extension) {
+            let d = new Date(activeDates[0]); let mNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            return `Duty_Roster_${mNames[d.getMonth()]}_${d.getFullYear()}_Date_${activeDates[0]}.${extension}`;
+        }
+        function exportToWord() {
+            const clone = document.getElementById('captureArea').cloneNode(true);
+            clone.querySelectorAll('.slot-controls, .clear-btn, .remove-col').forEach(e => e.remove());
+            clone.querySelectorAll('input.date-picker').forEach(inp => { let div = inp.parentNode; div.innerHTML = inp.value; });
+            clone.querySelectorAll('input.soldier-input').forEach(inp => { let div = inp.parentNode; div.parentNode.replaceChild(document.createTextNode(inp.value || ""), div); });
+            let preHtml = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>@page { size: 14in 8.5in; mso-page-orientation: landscape; margin: 0.5in; } table { border-collapse: collapse; width: 100%; font-family: Arial; font-size: 11px; } th, td { border: 1px solid black; padding: 4px; text-align: center; } th { background-color: #dddddd; } .dept-header { background-color: #d6eaf8; text-align: left; }</style></head><body>`;
+            let link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(['\ufeff', preHtml + clone.innerHTML + "</body></html>"], { type: 'application/msword' })); 
+            link.download = getSmartFileName('doc'); link.click();
+        }
+        function exportToImage() {
+            const clone = document.getElementById('captureArea').cloneNode(true);
+            clone.style.position = 'absolute'; clone.style.top = '-9999px'; clone.style.background = 'white'; clone.style.width = '14in';
+            clone.querySelectorAll('.slot-controls, .clear-btn, .remove-col').forEach(e => e.remove());
+            clone.querySelectorAll('input.date-picker').forEach(inp => { let div = inp.parentNode; div.innerHTML = inp.value; });
+            clone.querySelectorAll('input.soldier-input').forEach(inp => { let div = inp.parentNode; div.parentNode.replaceChild(document.createTextNode(inp.value || " "), div); });
+            document.body.appendChild(clone);
+            html2canvas(clone, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+                let link = document.createElement('a'); link.download = getSmartFileName('png'); 
+                link.href = canvas.toDataURL('image/png'); link.click(); document.body.removeChild(clone);
+            });
+        }
+    </script>
+</body>
+</html>
