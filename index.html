@@ -615,7 +615,7 @@
                     <tr>
                         <td><input type="text" id="editId_${i}" value="${s.id || ''}"></td>
                         <td><select id="editRank_${i}"><option value="SWO" ${s.rank==='SWO'?'selected':''}>SWO</option><option value="WO" ${s.rank==='WO'?'selected':''}>WO</option><option value="Sgt" ${s.rank==='Sgt'?'selected':''}>Sgt</option><option value="Cpl" ${s.rank==='Cpl'?'selected':''}>Cpl</option><option value="Lcpl" ${s.rank==='Lcpl'?'selected':''}>Lcpl</option><option value="Snk" ${s.rank==='Snk'?'selected':''}>Snk</option></select></td>
-                        <td><select id="editTrade_${i}"><option value="MA" ${s.trade==='MA'?'selected':''}>MA</option><option value="ICA" ${s.trade==='ICA'?'selected':''}>ICA</option><option value="STA" ${s.trade==='STA'?'selected':''}>STA</option></select></td>
+                        <td><select id="editTrade_${i}"><option value="MA" ${s.trade==='MA'?'selected':''}>MA</option><option value="ICA" ${s.trade==='ICA'?'selected':''}>ICA</option><option value="OTA" ${s.trade==='OTA'?'selected':''}>OTA</option><option value="PMA" ${s.trade==='PMA'?'selected':''}>PMA</option><option value="F/A" ${s.trade==='F/A'?'selected':''}>F/A</option><option value="STA" ${s.trade==='STA'?'selected':''}>STA</option><option value="RETD" ${s.trade==='RETD'?'selected':''}>RETD</option><option value="Other" ${s.trade==='Other'?'selected':''}>Other</option></select></td>
                         <td><input type="text" id="editName_${i}" value="${s.name || ''}" class="search-name"></td>
                         <td><input type="text" id="appt_${i}" value="${s.appointment || ''}"></td>
                         <td><select id="role_${i}"><option value="General" ${s.role==='General'?'selected':''}>General</option><option value="EC_Incharge" ${s.role==='EC_Incharge'?'selected':''}>E&C Incharge</option></select></td>
@@ -706,7 +706,6 @@
             
             for(let name in reportData) {
                 if(search && !name.toLowerCase().includes(search)) continue;
-                // Only show personnel who have at least 1 duty assigned
                 if(reportData[name].count > 0) {
                     tbody.innerHTML += `<tr><td><strong>${name}</strong></td><td><span style="background:var(--accent); color:white; padding:3px 8px; border-radius:10px;">${reportData[name].count} টি</span></td><td style="font-size:12px;">${reportData[name].dates.join(', ')}</td></tr>`;
                 }
