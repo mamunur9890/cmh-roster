@@ -69,30 +69,36 @@
         .header-title { text-align: center; font-weight: 900; font-size: 20px; margin-bottom: 15px; color: var(--primary); text-transform: uppercase; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
         
         table { width: 100%; border-collapse: collapse; background: white; }
-        thead th { position: sticky; top: 0; background-color: var(--primary); color: white; z-index: 10; padding: 10px; font-size: 14px; border: 1px solid #34495e; }
-        th, td { border: 1px solid #ccc; padding: 5px; text-align: center; vertical-align: middle; height: 38px; }
-        .dept-header { background-color: #d6eaf8 !important; font-weight: bold; text-align: left; padding-left: 10px; font-size: 15px; }
-        .shift-label { text-align: left; padding-left: 10px; font-weight: bold; white-space: nowrap; }
+        thead th { position: sticky; top: 0; background-color: var(--primary); color: white; z-index: 10; padding: 8px; font-size: 13px; border: 1px solid #34495e; }
+        th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; height: 35px; }
+        .dept-header { background-color: #d6eaf8 !important; font-weight: bold; text-align: left; padding-left: 10px; font-size: 14px; }
+        .shift-label { text-align: left; padding-left: 10px; font-weight: bold; white-space: nowrap; font-size: 13px; }
         .row-Morning td { background-color: var(--morning); } .row-Evening td { background-color: var(--evening); } .row-Night td { background-color: var(--night); }
 
-        .date-picker { padding: 4px; font-size: 14px; font-weight: bold; border: 1px solid #fff; border-radius: 3px; text-align: center; background: rgba(255,255,255,0.2); color: white; outline: none; }
+        .date-picker { padding: 4px; font-size: 13px; font-weight: bold; border: 1px solid #fff; border-radius: 3px; text-align: center; background: rgba(255,255,255,0.2); color: white; outline: none; }
         
         .input-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; background: white; border: 1px solid #bbb; border-radius: 4px; overflow: hidden; transition: 0.2s; }
         .input-wrapper.drag-over { border: 2px dashed var(--success); background: #e9f7ef; transform: scale(1.02); }
-        input[type="text"].soldier-input { width: 85%; padding: 8px 6px; font-size: 13px; border: none; outline: none; background: transparent; font-weight: bold; color: #2c3e50; cursor: grab; }
-        .clear-btn { color: #c0392b; cursor: pointer; font-size: 14px; font-weight: bold; width: 15%; user-select: none; border-left: 1px solid #ddd; background: #f9f9f9; padding: 7px 0; text-align: center; }
+        input[type="text"].soldier-input { width: 85%; padding: 6px 4px; font-size: 12px; border: none; outline: none; background: transparent; font-weight: bold; color: #2c3e50; cursor: grab; }
+        .clear-btn { color: #c0392b; cursor: pointer; font-size: 12px; font-weight: bold; width: 15%; user-select: none; border-left: 1px solid #ddd; background: #f9f9f9; padding: 5px 0; text-align: center; }
         .slot-controls { float: right; cursor: pointer; font-size: 12px; }
 
+        /* প্রিন্ট সেটআপ: লিগাল পেজ ল্যান্ডস্কেপ এবং চারিপাশে ০.৫ ইঞ্চি মার্জিন */
         @media print {
-            @page { size: legal landscape; margin: 0.5in; }
+            @page { 
+                size: 14in 8.5in; 
+                margin: 0.5in; 
+            }
+            body { background: white; padding: 0; font-size: 9px; }
             .dashboard, .toolbar, .slot-controls, .clear-btn, .sidebar, .modal, .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .table-wrapper { box-shadow: none; border: none; max-height: none; overflow: visible; padding: 0; }
-            input[type="text"].soldier-input { border: none; width: 100%; padding: 0; }
+            .table-wrapper { box-shadow: none; border: none; max-height: none; overflow: visible; padding: 0; width: 100% !important; }
+            table { width: 100% !important; font-size: 9px !important; }
+            input[type="text"].soldier-input { border: none; width: 100%; padding: 0; font-size: 9px; }
             .input-wrapper { border: none; }
-            thead th { position: static; color: black !important; background-color: #eee !important; border: 1px solid #000; }
-            th, td { border: 1px solid #000 !important; }
-            .dept-header { background-color: #d6eaf8 !important; -webkit-print-color-adjust: exact; color: black; }
+            thead th { position: static; color: black !important; background-color: #eee !important; border: 1px solid #000; font-size: 9px; padding: 3px; }
+            th, td { border: 1px solid #000 !important; padding: 2px; height: 24px; font-size: 9px; }
+            .dept-header { background-color: #d6eaf8 !important; -webkit-print-color-adjust: exact; color: black; font-size: 10px; padding: 3px; }
+            .header-title { font-size: 14px; margin-bottom: 5px; border-bottom: 1px solid #000; padding-bottom: 3px; }
         }
     </style>
 </head>
@@ -116,19 +122,31 @@
 
     <!-- Toolbar -->
     <div class="toolbar">
-        <button id="loginBtn" class="btn btn-login" onclick="toggleLogin()">🔒 লগইন (এডিট)</button>
-        <button class="btn btn-manage" onclick="authCheck(openManageModal)">⚙️ ম্যানপাওয়ার ম্যানেজমেন্ট</button>
+        <button id="loginBtn" class="btn btn-login" onclick="toggleLogin()">🔒 লগইন (ইউজার/অ্যাডমিন)</button>
+        
+        <!-- Admin Only Tools -->
+        <button class="btn btn-manage admin-tool" onclick="authCheck(openManageModal)" style="display:none;">⚙️ ম্যানপাওয়ার ম্যানেজমেন্ট</button>
+        
+        <!-- Shared Duty Tools (User + Admin) -->
         <button class="btn btn-auto" onclick="authCheck(autoAssignAllDuties)">⚡ অটো ডিউটি সেট</button>
         <button class="btn btn-sidebar" onclick="toggleSidebar()">👥 ফাঁকা জনবল</button>
         <button class="btn btn-word" onclick="authCheck(addDateColumn)" style="background-color: #34495e;">➕ দিন যোগ</button>
-        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;"></div>
-        <button class="btn btn-backup" onclick="authCheck(exportBackupJSON)">📥 ব্যাকআপ নিন</button>
-        <button class="btn btn-backup" onclick="authCheck(() => document.getElementById('backupFileBox').click())" style="background-color: #d35400;">📤 ব্যাকআপ আপলোড</button>
+        
+        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;" class="admin-tool"></div>
+        
+        <!-- Admin Only Backup Tools -->
+        <button class="btn btn-backup admin-tool" onclick="authCheck(exportBackupJSON)" style="display:none;">📥 ব্যাকআপ নিন</button>
+        <button class="btn btn-backup admin-tool" onclick="authCheck(() => document.getElementById('backupFileBox').click())" style="background-color: #d35400; display:none;">📤 ব্যাকআপ আপলোড</button>
         <input type="file" id="backupFileBox" style="display:none" accept=".json" onchange="importBackupJSON(event)">
-        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;"></div>
-        <button class="btn btn-report" onclick="openReportModal()">📊 মাসিক রিপোর্ট</button>
+        
+        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;" class="admin-tool"></div>
+        
+        <!-- Admin Only Report Tool -->
+        <button class="btn btn-report admin-tool" onclick="openReportModal()" style="display:none;">📊 মাসিক রিপোর্ট</button>
+        
+        <!-- Universal Export & Print Tools -->
         <button class="btn btn-word" onclick="exportToWord()">📄 ওয়ার্ড</button>
-        <button class="btn btn-image" onclick="exportToImage()">📸 ছবি (PNG)</button>
+        <button class="btn btn-image" onclick="exportToImage()">📸 ছবি (ফুল পেজ)</button>
         <button class="btn btn-manage" onclick="window.print()">🖨️ প্রিন্ট</button>
     </div>
 
@@ -219,7 +237,7 @@
         }
         const database = firebase.database();
 
-        // ================= Application State =================
+        // ================= Application State & Security =================
         let soldiersObjList = [];
         let slotCounts = {};
         let rosterData = {};
@@ -227,28 +245,50 @@
         let currentSidebarDate = "";
         let isDataLoaded = false;
         
-        let isAdminLoggedIn = false;
-        const ADMIN_PIN = "9890";
+        let currentRole = 'none'; 
+        const USER_PIN = "9890";   // সাধারণ ইউজারদের কমন পাসওয়ার্ড
+        const ADMIN_PIN = "2009890";  // অ্যাডমিন পাসওয়ার্ড
 
         function toggleLogin() {
-            if (isAdminLoggedIn) {
-                isAdminLoggedIn = false;
-                document.getElementById('loginBtn').innerText = "🔒 লগইন (এডিট)";
+            if (currentRole !== 'none') {
+                currentRole = 'none';
+                updateUIPermissions();
+                document.getElementById('loginBtn').innerText = "🔒 লগইন (ইউজার/অ্যাডমিন)";
                 document.getElementById('loginBtn').style.backgroundColor = "#c0392b";
-                alert("আপনি লগআউট হয়েছেন। এখন থেকে শুধু দেখতে পারবেন।");
+                alert("আপনি লগআউট হয়েছেন।");
             } else {
-                let pin = prompt("এডিট করার জন্য অ্যাডমিন পিন (PIN) দিন:");
+                let pin = prompt("পাসওয়ার্ড দিন (ইউজার বা অ্যাডমিন):");
                 if (pin === ADMIN_PIN) {
-                    isAdminLoggedIn = true;
+                    currentRole = 'admin';
+                    updateUIPermissions();
                     document.getElementById('loginBtn').innerText = "🔓 অ্যাডমিন (লগআউট)";
                     document.getElementById('loginBtn').style.backgroundColor = "#27ae60";
-                    alert("লগইন সফল! এখন আপনি ডিউটি পরিবর্তন করতে পারবেন।");
-                } else if(pin !== null) { alert("ভুল পিন! দয়া করে সঠিক পিন দিন।"); }
+                    alert("অ্যাডমিন লগইন সফল! সমস্ত ফিচার আনলক করা হয়েছে।");
+                } else if (pin === USER_PIN) {
+                    currentRole = 'user';
+                    updateUIPermissions();
+                    document.getElementById('loginBtn').innerText = "🔓 ইউজার (লগআউট)";
+                    document.getElementById('loginBtn').style.backgroundColor = "#2980b9";
+                    alert("ইউজার লগইন সফল! ডিউটি পরিবর্তন ও অটো-সেট করার অনুমতি দেওয়া হয়েছে।");
+                } else if(pin !== null) { 
+                    alert("ভুল পাসওয়ার্ড! দয়া করে সঠিক পাসওয়ার্ড দিন।"); 
+                }
             }
         }
 
+        function updateUIPermissions() {
+            let adminTools = document.querySelectorAll('.admin-tool');
+            let displayVal = (currentRole === 'admin') ? 'inline-block' : 'none';
+            adminTools.forEach(el => {
+                el.style.display = displayVal;
+            });
+        }
+
         function authCheck(func) {
-            if (!isAdminLoggedIn) { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করে পিন দিন।"); return; }
+            if (currentRole === 'none') { 
+                alert("⚠️ এডিট বা পরিবর্তন করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করুন।"); 
+                return; 
+            }
             func();
         }
 
@@ -459,18 +499,18 @@
         // ================= Safe Handlers for Buttons =================
 
         function changeDateHandler(index, newDate) {
-            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); renderTable(); return; }
+            if(currentRole === 'none') { alert("এডিট করতে লগইন করুন!"); renderTable(); return; }
             if (newDate) { activeDates[index] = newDate; saveStateToFirebase(); renderTable(); }
         }
 
         function removeDateColumnHandler(index) {
-            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); return; }
+            if(currentRole === 'none') { alert("এডিট করতে লগইন করুন!"); return; }
             if(activeDates.length > 1) { activeDates.splice(index, 1); saveStateToFirebase(); renderTable(); } 
             else { alert("অন্তত একটি দিন থাকতে হবে!"); }
         }
 
         function modifySlotHandler(key, delta) {
-            if(!isAdminLoggedIn) { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করে পিন দিন।"); return; }
+            if(currentRole === 'none') { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করুন।"); return; }
             let currentCount = slotCounts[key];
             if (currentCount === undefined || currentCount < 1) {
                 currentCount = (key.includes("OPD") || key.includes("PTS") || key.includes("NON FLU")) ? 1 : (key.includes("Morning") ? 3 : 2);
@@ -479,21 +519,21 @@
         }
 
         function clearInputHandler(date, key) {
-            if(!isAdminLoggedIn) { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করে পিন দিন।"); return; }
+            if(currentRole === 'none') { alert("⚠️ এডিট করার জন্য আপনাকে আগে লগইন করতে হবে! উপরের 'লগইন' বাটনে ক্লিক করুন।"); return; }
             if(rosterData[date] && rosterData[date][key]) { rosterData[date][key] = ""; saveStateToFirebase(); renderTable(); }
         }
 
         // ================= Drag & Drop / Input Handling =================
 
         function dragStart(ev, name, date, key) { 
-            if(!isAdminLoggedIn) { ev.preventDefault(); alert("এডিট করতে লগইন করুন!"); return; }
+            if(currentRole === 'none') { ev.preventDefault(); alert("এডিট করতে লগইন করুন!"); return; }
             ev.dataTransfer.setData("application/json", JSON.stringify({name: name, date: date, key: key})); 
         }
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
         function dropCell(ev, targetDate, targetKey) {
             ev.preventDefault(); ev.currentTarget.classList.remove('drag-over'); 
-            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); return; }
+            if(currentRole === 'none') { alert("এডিট করতে লগইন করুন!"); return; }
             let dataStr = ev.dataTransfer.getData("application/json");
             if(dataStr) {
                 let data = JSON.parse(dataStr); 
@@ -508,7 +548,7 @@
         }
         
         function manualInputSave(date, key, val) { 
-            if(!isAdminLoggedIn) { alert("এডিট করতে লগইন করুন!"); renderTable(); return; } 
+            if(currentRole === 'none') { alert("এডিট করতে লগইন করুন!"); renderTable(); return; } 
             if (!rosterData[date]) rosterData[date] = {}; 
             rosterData[date][key] = val.trim(); 
             saveStateToFirebase(); 
@@ -712,7 +752,7 @@
             }
         }
 
-        // ================= Document Exports =================
+        // ================= Document Exports (Optimized for Full Legal 1 Page) =================
         function getSmartFileName(extension) {
             let d = new Date(activeDates[0]); let mNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             return `Duty_Roster_${mNames[d.getMonth()]}_${d.getFullYear()}_Date_${activeDates[0]}.${extension}`;
@@ -723,21 +763,21 @@
             clone.querySelectorAll('.slot-controls, .clear-btn, .remove-col').forEach(e => e.remove());
             clone.querySelectorAll('input.date-picker').forEach(inp => { let div = inp.parentNode; div.innerHTML = inp.value; });
             clone.querySelectorAll('input.soldier-input').forEach(inp => { let div = inp.parentNode; div.parentNode.replaceChild(document.createTextNode(inp.value || ""), div); });
-            let preHtml = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>@page { size: 14in 8.5in; mso-page-orientation: landscape; margin: 0.5in; } table { border-collapse: collapse; width: 100%; font-family: Arial; font-size: 11px; } th, td { border: 1px solid black; padding: 4px; text-align: center; } th { background-color: #dddddd; } .dept-header { background-color: #d6eaf8; text-align: left; }</style></head><body>`;
+            let preHtml = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>@page { size: 14in 8.5in; mso-page-orientation: landscape; margin: 0.5in; } table { border-collapse: collapse; width: 100%; font-family: Arial; font-size: 9px; } th, td { border: 1px solid black; padding: 2px; text-align: center; height: 22px; } th { background-color: #dddddd; } .dept-header { background-color: #d6eaf8; text-align: left; font-size: 10px; }</style></head><body>`;
             let link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(['\ufeff', preHtml + clone.innerHTML + "</body></html>"], { type: 'application/msword' })); 
             link.download = getSmartFileName('doc'); link.click();
         }
         
         function exportToImage() {
-            const clone = document.getElementById('captureArea').cloneNode(true);
-            clone.style.position = 'absolute'; clone.style.top = '-9999px'; clone.style.background = 'white'; clone.style.width = '14in';
-            clone.querySelectorAll('.slot-controls, .clear-btn, .remove-col').forEach(e => e.remove());
-            clone.querySelectorAll('input.date-picker').forEach(inp => { let div = inp.parentNode; div.innerHTML = inp.value; });
-            clone.querySelectorAll('input.soldier-input').forEach(inp => { let div = inp.parentNode; div.parentNode.replaceChild(document.createTextNode(inp.value || " "), div); });
-            document.body.appendChild(clone);
-            html2canvas(clone, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+            const el = document.getElementById('captureArea');
+            html2canvas(el, { 
+                scale: 2, 
+                backgroundColor: "#ffffff",
+                width: el.scrollWidth,
+                windowWidth: el.scrollWidth
+            }).then(canvas => {
                 let link = document.createElement('a'); link.download = getSmartFileName('png'); 
-                link.href = canvas.toDataURL('image/png'); link.click(); document.body.removeChild(clone);
+                link.href = canvas.toDataURL('image/png'); link.click();
             });
         }
     </script>
