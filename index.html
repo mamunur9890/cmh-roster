@@ -90,6 +90,10 @@
         .dept-header { background-color: rgba(56, 189, 248, 0.08) !important; border-top: 2px solid var(--accent) !important; color: var(--accent); font-weight: 800; text-align: left; padding: 10px 15px !important; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background 0.2s; user-select: none; }
         .dept-header:hover { background-color: rgba(56, 189, 248, 0.15) !important; }
 
+        /* SHIFT SEPARATOR (Creates the visual gap between Morning, Evening, Night) */
+	.shift-separator td { 
+ 	border-bottom: 2px solid var(--accent) !important; 
+	}
         /* Shift Badges */
         .shift-label { text-align: left; padding-left: 15px !important; font-weight: bold; font-size: 12px; border-right: 1px solid var(--border) !important; }
         .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
@@ -117,7 +121,6 @@
         /* Gap Analysis Interactive Cards */
         .gap-card { flex: 1; padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; transition: transform 0.2s, filter 0.2s; }
         .gap-card:hover { transform: translateY(-3px); filter: brightness(1.2); }
-        .gap-card-active { box-shadow: inset 0 0 0 2px white; }
 
         /* ================= PRINT SETUP ================= */
         @media print {
@@ -131,7 +134,9 @@
             thead th { position: static; background-color: #e2e8f0 !important; color: black !important; border: 1px solid #000 !important; font-size: 10pt; padding: 5px; font-weight: bold; text-align: center; }
             th, td { border: 1px solid #000 !important; padding: 3px !important; height: 26px; font-size: 10pt; text-align: center; color: black !important; }
             
-            /* Ensure collapsed rows print properly */
+            /* Remove Shift Gap Illusion in Print */
+            .shift-separator td { border-bottom: 1px solid #000 !important; }
+            
             .dept-row { display: table-row !important; }
             .dept-header { border-top: 2px solid black !important; background-color: #d1d5db !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: black !important; padding: 5px !important; text-align: left !important; }
             
@@ -331,7 +336,7 @@
             document.getElementById('statTD').innerText = td; document.getElementById('statAdmin').innerText = admin;
         }
 
-        // Main Rendering Logic (With Collapsible Departments)
+        // Main Rendering Logic (With Shift Separator & Collapsible Departments)
         function renderTable() {
             const thead = document.querySelector('#rosterTable thead'); const tbody = document.querySelector('#rosterTable tbody');
             let trHead = `<tr><th style="width: 20%; text-align:left; padding-left:15px;">Department / Sector</th>`; let dlHtml = '';
@@ -350,20 +355,24 @@
             
             let tbodyHtml = '';
             deptsConfig.forEach((dept, dIndex) => {
-                // Collapsible Header Row
                 tbodyHtml += `<tr><td colspan="${activeDates.length + 1}" class="dept-header" onclick="toggleDept(${dIndex})">
                     <span id="icon-dept-${dIndex}">▼</span> &nbsp; ${dept.name}
                 </td></tr>`;
                 
-                dept.shifts.forEach(shift => {
+                dept.shifts.forEach((shift, sIndex) => {
                     let rawKey = dept.name + "_" + shift; let key = cleanKey(rawKey); 
                     let count = slotCounts[key] !== undefined ? slotCounts[key] : ((shift.includes("OPD")||shift.includes("PTS")||shift.includes("NON FLU"))?1:(shift.includes("Morning")?3:2));
                     let badgeClass = shift.includes("Morning") || shift.includes("OPD") ? "badge-morning" : (shift.includes("Evening") ? "badge-evening" : "badge-night");
                     let shiftNameDisplay = shift.includes("NON FLU") || shift.includes("PTS") ? shift : (shift.includes("OPD") ? shift.replace("-OPD","").replace(" OPD","") : shift);
+                    
+                    let isLastShiftOfDept = (sIndex === dept.shifts.length - 1);
 
                     for (let r = 0; r < count; r++) {
-                        // Added dept-row-${dIndex} class for collapsibility
-                        tbodyHtml += `<tr class="dept-row-${dIndex} dept-row">`;
+                        let isLastRowOfShift = (r === count - 1);
+                        // Apply separator if it's the last row of the shift, BUT NOT the last shift of the department
+                        let separatorClass = (isLastRowOfShift && !isLastShiftOfDept) ? " shift-separator" : "";
+
+                        tbodyHtml += `<tr class="dept-row-${dIndex} dept-row${separatorClass}">`;
                         if (r === 0) {
                             tbodyHtml += `<td rowspan="${count}" class="shift-label">
                                 <span class="badge ${badgeClass}">${shiftNameDisplay}</span>
