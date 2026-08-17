@@ -33,11 +33,11 @@
         body { background-color: var(--bg-base); color: var(--text-main); padding: 20px; font-size: 14px; overflow-x: hidden; }
         
         /* Dashboard Cards */
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { background: var(--bg-panel); border: 1px solid var(--border); padding: 15px 10px; text-align: center; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; user-select: none; }
         .stat-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15); }
         .stat-card h3 { margin: 0 0 5px; font-size: 26px; font-weight: bold; color: var(--text-main); }
-        .stat-card p { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card p { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         
         .c-total { border-bottom: 3px solid var(--accent); } .c-total h3 { color: var(--accent); }
         .c-ma { border-bottom: 3px solid #60a5fa; } .c-ma h3 { color: #60a5fa; }
@@ -48,7 +48,7 @@
 
         /* Toolbar */
         .toolbar { background: var(--bg-panel); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
-        .btn { background-color: var(--accent); color: #0f172a; border: none; padding: 8px 15px; border-radius: 4px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+        .btn { background-color: var(--accent); color: #0f172a; border: none; padding: 8px 15px; border-radius: 4px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .btn:hover { background-color: var(--accent-hover); color: white; }
         .btn-outline { background-color: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
         .btn-outline:hover { border-color: white; color: white; background: transparent; }
@@ -76,12 +76,26 @@
         .close-modal:hover { color: var(--danger); }
         .modal-header { font-size: 18px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; color: white; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* Main Table Architecture */
-        .table-container { background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; max-height: 75vh; overflow-y: auto; }
+        /* Main Table Architecture (Responsive Updates) */
+        .table-container { 
+            background: var(--bg-panel); 
+            border-radius: 8px; 
+            border: 1px solid var(--border); 
+            overflow-x: auto; 
+            max-height: 75vh; 
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on mobile */
+        }
         .header-title { text-align: center; font-weight: bold; font-size: 18px; margin: 15px 0; color: white; letter-spacing: 1px; }
         
         table { width: 100%; border-collapse: collapse; text-align: center; }
-        thead th { position: sticky; top: 0; background-color: rgba(0,0,0,0.6); color: var(--text-muted); z-index: 10; padding: 12px 8px; font-size: 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; backdrop-filter: blur(5px); }
+        
+        thead th { 
+            position: sticky; top: 0; background-color: rgba(0,0,0,0.6); color: var(--text-muted); 
+            z-index: 10; padding: 12px 8px; font-size: 12px; border-bottom: 1px solid var(--border); 
+            text-transform: uppercase; letter-spacing: 0.5px; backdrop-filter: blur(5px); 
+        }
+        
         th, td { border-bottom: 1px solid var(--border); border-right: 1px solid rgba(255,255,255,0.05); padding: 6px; height: 38px; vertical-align: middle; }
         td:last-child { border-right: none; }
         tr:hover { background-color: rgba(255,255,255,0.03); }
@@ -90,27 +104,27 @@
         .dept-header { background-color: rgba(56, 189, 248, 0.08) !important; border-top: 2px solid var(--accent) !important; color: var(--accent); font-weight: 800; text-align: left; padding: 10px 15px !important; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background 0.2s; user-select: none; }
         .dept-header:hover { background-color: rgba(56, 189, 248, 0.15) !important; }
 
-        /* SHIFT SEPARATOR (Creates the visual gap between Morning, Evening, Night) */
-	.shift-separator td { 
- 	border-bottom: 2px solid var(--accent) !important; 
-	}
+        /* SHIFT SEPARATOR (Tactical 2px Blue Line) */
+        .shift-separator td { border-bottom: 2px solid var(--accent) !important; }
+
         /* Shift Badges */
-        .shift-label { text-align: left; padding-left: 15px !important; font-weight: bold; font-size: 12px; border-right: 1px solid var(--border) !important; }
+        .shift-label { text-align: left; padding-left: 15px !important; font-weight: bold; font-size: 12px; border-right: 1px solid var(--border) !important; min-width: 140px; }
         .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
         .badge-morning { color: var(--accent); background: rgba(56, 189, 248, 0.15); }
         .badge-evening { color: var(--warning); background: rgba(245, 158, 11, 0.15); }
         .badge-night { color: var(--purple); background: rgba(192, 132, 252, 0.15); }
 
-        .date-picker { padding: 4px; font-size: 12px; font-weight: bold; border: 1px solid var(--border); border-radius: 4px; text-align: center; background: var(--bg-base); color: white; outline: none; transition: 0.2s; }
+        .date-picker { padding: 4px; font-size: 12px; font-weight: bold; border: 1px solid var(--border); border-radius: 4px; text-align: center; background: var(--bg-base); color: white; outline: none; transition: 0.2s; width: 120px; }
         
-        /* Inputs inside Table */
-        .input-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; transition: 0.2s; }
+        /* Inputs inside Table (Forced width logic for App views) */
+        .input-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; transition: 0.2s; min-width: 150px; }
         .input-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 5px rgba(56, 189, 248, 0.3); }
         .input-wrapper.drag-over { border: 1px dashed var(--success); background: rgba(16, 185, 129, 0.1); }
-        input[type="text"].soldier-input { width: 85%; padding: 8px 6px; font-size: 12px; border: none; outline: none; background: transparent; font-weight: 700; color: white; cursor: grab; }
-        .clear-btn { color: var(--danger); cursor: pointer; font-size: 14px; padding: 0 8px; opacity: 0.5; transition: 0.2s; } 
-        .clear-btn:hover { opacity: 1; }
-        .slot-controls { float: right; cursor: pointer; font-size: 12px; color: var(--text-muted); opacity: 0.6; }
+        
+        input[type="text"].soldier-input { flex-grow: 1; padding: 8px 6px; font-size: 13px; border: none; outline: none; background: transparent; font-weight: 700; color: white; cursor: grab; text-overflow: ellipsis; }
+        .clear-btn { color: var(--danger); cursor: pointer; font-size: 16px; padding: 0 10px; opacity: 0.5; transition: 0.2s; user-select: none; } 
+        .clear-btn:hover { opacity: 1; background: rgba(2ef, 68, 68, 0.1); }
+        .slot-controls { float: right; cursor: pointer; font-size: 13px; color: var(--text-muted); opacity: 0.6; padding: 2px; }
         
         /* Utility Table for Modals */
         .manage-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
@@ -122,6 +136,24 @@
         .gap-card { flex: 1; padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; transition: transform 0.2s, filter 0.2s; }
         .gap-card:hover { transform: translateY(-3px); filter: brightness(1.2); }
 
+        /* ================= MOBILE APP SPECIFIC FIXES ================= */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+            .toolbar .btn { width: 100%; margin: 2px 0; }
+            .admin-tool { width: 100%; height: auto !important; }
+            
+            /* Prevent columns from shrinking too much on phones */
+            th.date-header-cell { min-width: 175px !important; }
+            .shift-label { min-width: 120px !important; }
+            
+            .dashboard { grid-template-columns: repeat(2, 1fr); }
+            .stat-card { padding: 10px; }
+            .stat-card h3 { font-size: 20px; }
+            
+            .modal-content { padding: 15px; width: 98%; }
+        }
+
         /* ================= PRINT SETUP ================= */
         @media print {
             @page { size: 14in 8.5in; margin: 0.5in; }
@@ -132,9 +164,8 @@
             table { width: 100% !important; border-collapse: collapse !important; border: 2px solid black !important; }
             
             thead th { position: static; background-color: #e2e8f0 !important; color: black !important; border: 1px solid #000 !important; font-size: 10pt; padding: 5px; font-weight: bold; text-align: center; }
-            th, td { border: 1px solid #000 !important; padding: 3px !important; height: 26px; font-size: 10pt; text-align: center; color: black !important; }
+            th, td { border: 1px solid #000 !important; padding: 3px !important; height: 26px; font-size: 10pt; text-align: center; color: black !important; min-width: auto !important; }
             
-            /* Remove Shift Gap Illusion in Print */
             .shift-separator td { border-bottom: 1px solid #000 !important; }
             
             .dept-row { display: table-row !important; }
@@ -144,7 +175,7 @@
             .shift-label { text-align: left !important; border-right: 1px solid black !important; }
             
             input[type="text"].soldier-input { color: black !important; width: 100%; padding: 0; font-size: 10pt; text-align: center; }
-            .input-wrapper { border: none !important; background: transparent !important; justify-content: center; }
+            .input-wrapper { border: none !important; background: transparent !important; justify-content: center; min-width: auto !important; }
             .header-title { color: black !important; font-size: 16pt; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px; font-weight: bold; }
         }
     </style>
@@ -190,7 +221,7 @@
         <button class="btn btn-purple" onclick="openOpSummaryModal()">📊 Gap Analysis</button>
         <button class="btn btn-outline admin-tool" onclick="openReportModal()" style="display:none;">📈 Monthly Data</button>
         
-        <div style="margin-left: auto; display: flex; gap: 8px;">
+        <div style="margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
             <button class="btn btn-outline" onclick="exportToWord()">📄 Export Word</button>
             <button class="btn btn-outline" onclick="window.print()">🖨️ Print Roster</button>
         </div>
@@ -218,10 +249,12 @@
                 <button class="btn" onclick="addSoldier()">Register</button>
                 <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="🔍 Quick Search..." style="margin-left:auto; padding: 8px; width: 250px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;">
             </div>
-            <table class="manage-table" id="manageTable">
-                <thead><tr><th>Mil No</th><th>Rank</th><th>Trade</th><th>Name</th><th>Appt.</th><th>Role</th><th>Status</th><th>Leave Date</th><th style="text-align:center;">Action</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div style="overflow-x:auto;">
+                <table class="manage-table" id="manageTable">
+                    <thead><tr><th>Mil No</th><th>Rank</th><th>Trade</th><th>Name</th><th>Appt.</th><th>Role</th><th>Status</th><th>Leave Date</th><th style="text-align:center;">Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
             <div style="display:flex; justify-content:flex-end; margin-top:20px;">
                 <button class="btn btn-success" style="padding: 12px 25px;" onclick="saveAllStaff()">💾 Commit Changes to Server</button>
             </div>
@@ -240,7 +273,7 @@
         </div>
     </div>
     
-    <!-- Op Summary Modal (Upgraded with Date Selector & Clickable Cards) -->
+    <!-- Op Summary Modal -->
     <div id="opSummaryModal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <span class="close-modal" onclick="closeModal('opSummaryModal')">&times;</span>
@@ -261,12 +294,12 @@
         <div class="modal-content" style="max-width: 900px;">
             <span class="close-modal" onclick="closeModal('reportModal')">&times;</span>
             <div class="modal-header">Individual Duty Analytics</div>
-            <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; background: var(--bg-base); padding: 15px; border-radius: 4px; border: 1px solid var(--border);">
+            <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap:wrap; background: var(--bg-base); padding: 15px; border-radius: 4px; border: 1px solid var(--border);">
                 <div><span style="color:var(--text-muted); font-size:12px; font-weight:bold; margin-right:8px; text-transform:uppercase;">Select Month:</span><input type="month" id="reportMonth" style="padding:8px; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px;" onchange="generateReport()"></div>
-                <div style="margin-left:auto;"><input type="text" id="reportSearch" placeholder="Filter by Name..." style="padding:8px; width:250px; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px;" onkeyup="generateReport()"></div>
+                <div style="margin-left:auto; width:100%; max-width:250px;"><input type="text" id="reportSearch" placeholder="Filter by Name..." style="padding:8px; width:100%; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px;" onkeyup="generateReport()"></div>
             </div>
             <table class="manage-table" id="reportTable">
-                <thead><tr><th>Personnel</th><th style="width:100px; text-align:center;">Total Shifts</th><th>Departmental Breakdown</th></tr></thead>
+                <thead><tr><th>Personnel</th><th style="width:80px; text-align:center;">Total Shifts</th><th>Departmental Breakdown</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -336,18 +369,18 @@
             document.getElementById('statTD').innerText = td; document.getElementById('statAdmin').innerText = admin;
         }
 
-        // Main Rendering Logic (With Shift Separator & Collapsible Departments)
+        // Main Rendering Logic
         function renderTable() {
             const thead = document.querySelector('#rosterTable thead'); const tbody = document.querySelector('#rosterTable tbody');
-            let trHead = `<tr><th style="width: 20%; text-align:left; padding-left:15px;">Department / Sector</th>`; let dlHtml = '';
+            let trHead = `<tr><th class="shift-label" style="text-transform:uppercase; letter-spacing:1px; color:white;">Department / Sector</th>`; let dlHtml = '';
             
             activeDates.forEach((date, index) => {
-                trHead += `<th style="width: ${80/activeDates.length}%;">
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                trHead += `<th class="date-header-cell" style="width: ${80/activeDates.length}%;">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
                         <input type="date" class="date-picker" value="${date}" onchange="changeDateHandler(${index}, this.value)">
                         <div class="no-print" style="display:flex; gap:5px;">
-                            <button onclick="openFreeStaffSidebar('${date}')" style="background:var(--accent); color:#000; border:none; padding:2px 6px; border-radius:3px; font-size:10px; font-weight:bold; cursor:pointer;">STAFF</button>
-                            ${activeDates.length > 1 ? `<button class="remove-col" style="background:transparent; border:1px solid var(--danger); color:var(--danger); padding:2px 6px; border-radius:3px; font-size:10px; cursor:pointer;" onclick="removeDateColumnHandler(${index})">✖</button>` : ''}
+                            <button onclick="openFreeStaffSidebar('${date}')" style="background:var(--accent); color:#000; border:none; padding:4px 8px; border-radius:3px; font-size:10px; font-weight:bold; cursor:pointer;">STAFF</button>
+                            ${activeDates.length > 1 ? `<button class="remove-col" style="background:transparent; border:1px solid var(--danger); color:var(--danger); padding:3px 8px; border-radius:3px; font-size:10px; cursor:pointer;" onclick="removeDateColumnHandler(${index})">✖</button>` : ''}
                         </div>
                     </div>
                 </th>`; dlHtml += `<datalist id="list_${date}"></datalist>`;
@@ -369,7 +402,6 @@
 
                     for (let r = 0; r < count; r++) {
                         let isLastRowOfShift = (r === count - 1);
-                        // Apply separator if it's the last row of the shift, BUT NOT the last shift of the department
                         let separatorClass = (isLastRowOfShift && !isLastShiftOfDept) ? " shift-separator" : "";
 
                         tbodyHtml += `<tr class="dept-row-${dIndex} dept-row${separatorClass}">`;
@@ -455,7 +487,6 @@
             if(activeDates.length === 0) return alert("No active dates available."); 
             let tDate = selectedDate || activeDates[activeDates.length - 1]; 
             
-            // Generate Date Dropdown
             let dateSelectHTML = `<select onchange="openOpSummaryModal(this.value)" style="padding:6px; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px; font-weight:bold; cursor:pointer; outline:none;">`;
             activeDates.forEach(d => { dateSelectHTML += `<option value="${d}" ${d === tDate ? 'selected' : ''}>${d}</option>`; });
             dateSelectHTML += `</select>`;
@@ -470,21 +501,16 @@
                     tReq += count;
                     for (let r=0; r<count; r++) {
                         let sKey = key + "_slot_" + r; let name = (rosterData[tDate] && rosterData[tDate][sKey]) ? rosterData[tDate][sKey] : "";
-                        if(name.trim() === "") {
-                            eC++; globalGapData.emptyList.push({dept: dept.name, shift: shift});
-                        } else {
+                        if(name.trim() === "") { eC++; globalGapData.emptyList.push({dept: dept.name, shift: shift}); } 
+                        else {
                             let obj = soldiersObjList.find(s => s && s.displayName === name);
-                            if(obj && (obj.trade||'').toUpperCase() === 'MA') { 
-                                maC++; globalGapData.maList.push({name: name, dept: dept.name, shift: shift}); 
-                            } else { 
-                                oC++; globalGapData.otherList.push({name: name, dept: dept.name, shift: shift}); 
-                            }
+                            if(obj && (obj.trade||'').toUpperCase() === 'MA') { maC++; globalGapData.maList.push({name: name, dept: dept.name, shift: shift}); } 
+                            else { oC++; globalGapData.otherList.push({name: name, dept: dept.name, shift: shift}); }
                         }
                     }
                 });
             });
 
-            // Interactive Cards (Clickable)
             document.getElementById('opSummaryContent').innerHTML = `
                 <div style="display:flex; gap:12px; margin-bottom:10px; flex-wrap:wrap;">
                     <div class="gap-card" style="background:var(--bg-base); border:1px solid var(--border);" onclick="renderGapDetails('ma')"><h3 style="margin:0; font-size:28px;">${tReq}</h3><p style="margin:5px 0 0; font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:bold;">Total Slots</p></div>
@@ -495,35 +521,22 @@
                 <div style="text-align:center; color:var(--text-muted); font-size:11px; margin-bottom:10px;">(Click on the cards above to view detailed lists)</div>
             `;
             
-            // Default load MA List
-            renderGapDetails('ma');
-            document.getElementById('opSummaryModal').style.display = 'flex';
+            renderGapDetails('ma'); document.getElementById('opSummaryModal').style.display = 'flex';
         }
 
-        // Render Drill-down Tables inside Modal
         function renderGapDetails(type) {
             let html = ""; let title = "";
             if(type === 'ma') {
-                title = "MA Deployment Map";
-                html = `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;"><thead><tr><th>Personnel (MA)</th><th>Department</th><th>Shift</th></tr></thead><tbody>`;
-                html += globalGapData.maList.length > 0 ? globalGapData.maList.map(item => `<tr><td style="color:var(--success); font-weight:bold;">${item.name}</td><td>${item.dept}</td><td><span class="badge" style="background:rgba(255,255,255,0.1);">${item.shift}</span></td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--danger);">Zero MA Active.</td></tr>`;
-                html += `</tbody></table>`;
+                title = "MA Deployment Map"; html = `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;"><thead><tr><th>Personnel (MA)</th><th>Department</th><th>Shift</th></tr></thead><tbody>`;
+                html += globalGapData.maList.length > 0 ? globalGapData.maList.map(item => `<tr><td style="color:var(--success); font-weight:bold;">${item.name}</td><td>${item.dept}</td><td><span class="badge" style="background:rgba(255,255,255,0.1);">${item.shift}</span></td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--danger);">Zero MA Active.</td></tr>`; html += `</tbody></table>`;
             } else if (type === 'other') {
-                title = "Deficit Mitigation (Non-MA Staff Deployed)";
-                html = `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;"><thead><tr><th>Substitute Personnel</th><th>Department</th><th>Shift</th></tr></thead><tbody>`;
-                html += globalGapData.otherList.length > 0 ? globalGapData.otherList.map(item => `<tr><td style="color:var(--danger); font-weight:bold;">${item.name}</td><td>${item.dept}</td><td><span class="badge" style="background:rgba(255,255,255,0.1);">${item.shift}</span></td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--success);">No substitute staff required.</td></tr>`;
-                html += `</tbody></table>`;
+                title = "Deficit Mitigation (Non-MA Staff Deployed)"; html = `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;"><thead><tr><th>Substitute Personnel</th><th>Department</th><th>Shift</th></tr></thead><tbody>`;
+                html += globalGapData.otherList.length > 0 ? globalGapData.otherList.map(item => `<tr><td style="color:var(--danger); font-weight:bold;">${item.name}</td><td>${item.dept}</td><td><span class="badge" style="background:rgba(255,255,255,0.1);">${item.shift}</span></td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--success);">No substitute staff required.</td></tr>`; html += `</tbody></table>`;
             } else if (type === 'empty') {
-                title = "Critical Empty Slots";
-                html = `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;"><thead><tr><th>Department</th><th>Shift</th><th>Status</th></tr></thead><tbody>`;
-                html += globalGapData.emptyList.length > 0 ? globalGapData.emptyList.map(item => `<tr><td style="color:white; font-weight:bold;">${item.dept}</td><td><span class="badge" style="background:rgba(255,255,255,0.1);">${item.shift}</span></td><td style="color:var(--warning); font-weight:bold;">UNASSIGNED</td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--success);">All slots filled.</td></tr>`;
-                html += `</tbody></table>`;
+                title = "Critical Empty Slots"; html = `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;"><thead><tr><th>Department</th><th>Shift</th><th>Status</th></tr></thead><tbody>`;
+                html += globalGapData.emptyList.length > 0 ? globalGapData.emptyList.map(item => `<tr><td style="color:white; font-weight:bold;">${item.dept}</td><td><span class="badge" style="background:rgba(255,255,255,0.1);">${item.shift}</span></td><td style="color:var(--warning); font-weight:bold;">UNASSIGNED</td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--success);">All slots filled.</td></tr>`; html += `</tbody></table>`;
             }
-            
-            document.getElementById('gapDetailView').innerHTML = `
-                <div style="color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;">${title}</div>
-                ${html}
-            `;
+            document.getElementById('gapDetailView').innerHTML = `<div style="color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;">${title}</div>${html}`;
         }
 
         // Monthly Reports
@@ -540,7 +553,6 @@
             clone.querySelectorAll('.slot-controls, .clear-btn, .no-print').forEach(e => e.remove());
             clone.querySelectorAll('input.date-picker').forEach(inp => { inp.parentNode.innerHTML = inp.value; });
             clone.querySelectorAll('input.soldier-input').forEach(inp => { let d = inp.parentNode; d.parentNode.replaceChild(document.createTextNode(inp.value||""), d); });
-            // Remove collapse style for export
             clone.querySelectorAll('.dept-row').forEach(row => { row.style.display = 'table-row'; });
             let html = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>@page{size:14in 8.5in; mso-page-orientation:landscape; margin:0.5in;} table{border-collapse:collapse;width:100%;font-size:9px;} th,td{border:1px solid black;padding:3px;text-align:center;} th{background:#e2e8f0;font-weight:bold;} .dept-header{background:#d1d5db;text-align:left;font-weight:bold;} .badge{font-weight:bold;text-transform:uppercase;}</style></head><body>${clone.innerHTML}</body></html>`;
             link.href = URL.createObjectURL(new Blob(['\ufeff', html], {type:'application/msword'})); link.click();
