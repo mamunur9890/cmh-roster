@@ -62,7 +62,7 @@
         .spinner { border: 4px solid var(--border); border-top: 4px solid var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Sidebar & Modals */
+        /* Sidebar */
         .sidebar { position: fixed; right: -320px; top: 0; width: 300px; height: 100%; background: var(--bg-panel); border-left: 1px solid var(--border); transition: right 0.3s ease; z-index: 2000; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.5); }
         .sidebar.active { right: 0; }
         .sidebar-header { background: rgba(0,0,0,0.3); color: white; padding: 15px; font-size: 14px; font-weight: bold; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -70,41 +70,28 @@
         .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; }
         .drag-item { background: var(--bg-base); border: 1px solid var(--border); padding: 10px; margin-bottom: 8px; border-left: 3px solid var(--success); border-radius: 4px; cursor: grab; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; transition: 0.2s; }
         
+        /* Modals & Sticky Headers */
         .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); justify-content: center; align-items: center; }
-        .modal-content { background: var(--bg-panel); color: var(--text-main); padding: 25px; border-radius: 8px; border: 1px solid var(--border); width: 95%; max-width: 1000px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
-        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .modal-content { background: var(--bg-panel); color: var(--text-main); padding: 0; border-radius: 8px; border: 1px solid var(--border); width: 95%; max-width: 1000px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        .modal-header { font-size: 18px; font-weight: bold; padding: 15px 25px; border-bottom: 1px solid var(--border); color: white; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-panel); z-index: 100; }
+        .modal-body { padding: 20px 25px; }
+        .close-modal { font-size: 24px; cursor: pointer; color: var(--text-muted); transition: 0.2s; margin-left: auto; line-height: 1; }
         .close-modal:hover { color: var(--danger); }
-        .modal-header { font-size: 18px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; color: white; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
 
         /* Main Table Architecture (Responsive Updates) */
-        .table-container { 
-            background: var(--bg-panel); 
-            border-radius: 8px; 
-            border: 1px solid var(--border); 
-            overflow-x: auto; 
-            max-height: 75vh; 
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch; /* Smooth scroll on mobile */
-        }
+        .table-container { background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; max-height: 75vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .header-title { text-align: center; font-weight: bold; font-size: 18px; margin: 15px 0; color: white; letter-spacing: 1px; }
-        
         table { width: 100%; border-collapse: collapse; text-align: center; }
-        
-        thead th { 
-            position: sticky; top: 0; background-color: rgba(0,0,0,0.6); color: var(--text-muted); 
-            z-index: 10; padding: 12px 8px; font-size: 12px; border-bottom: 1px solid var(--border); 
-            text-transform: uppercase; letter-spacing: 0.5px; backdrop-filter: blur(5px); 
-        }
-        
+        thead th { position: sticky; top: 0; background-color: rgba(0,0,0,0.6); color: var(--text-muted); z-index: 10; padding: 12px 8px; font-size: 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; backdrop-filter: blur(5px); }
         th, td { border-bottom: 1px solid var(--border); border-right: 1px solid rgba(255,255,255,0.05); padding: 6px; height: 38px; vertical-align: middle; }
         td:last-child { border-right: none; }
         tr:hover { background-color: rgba(255,255,255,0.03); }
 
-        /* Department Divider (Collapsible) */
+        /* Department Divider */
         .dept-header { background-color: rgba(56, 189, 248, 0.08) !important; border-top: 2px solid var(--accent) !important; color: var(--accent); font-weight: 800; text-align: left; padding: 10px 15px !important; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background 0.2s; user-select: none; }
         .dept-header:hover { background-color: rgba(56, 189, 248, 0.15) !important; }
 
-        /* SHIFT SEPARATOR (Tactical 2px Blue Line) */
+        /* SHIFT SEPARATOR */
         .shift-separator td { border-bottom: 2px solid var(--accent) !important; }
 
         /* Shift Badges */
@@ -113,45 +100,43 @@
         .badge-morning { color: var(--accent); background: rgba(56, 189, 248, 0.15); }
         .badge-evening { color: var(--warning); background: rgba(245, 158, 11, 0.15); }
         .badge-night { color: var(--purple); background: rgba(192, 132, 252, 0.15); }
+        .badge-clickable { cursor: pointer; transition: transform 0.2s, filter 0.2s; }
+        .badge-clickable:hover { transform: scale(1.05); filter: brightness(1.3); border-bottom: 1px solid; }
 
         .date-picker { padding: 4px; font-size: 12px; font-weight: bold; border: 1px solid var(--border); border-radius: 4px; text-align: center; background: var(--bg-base); color: white; outline: none; transition: 0.2s; width: 120px; }
         
-        /* Inputs inside Table (Forced width logic for App views) */
+        /* Inputs */
         .input-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; transition: 0.2s; min-width: 150px; }
         .input-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 5px rgba(56, 189, 248, 0.3); }
         .input-wrapper.drag-over { border: 1px dashed var(--success); background: rgba(16, 185, 129, 0.1); }
-        
         input[type="text"].soldier-input { flex-grow: 1; padding: 8px 6px; font-size: 13px; border: none; outline: none; background: transparent; font-weight: 700; color: white; cursor: grab; text-overflow: ellipsis; }
         .clear-btn { color: var(--danger); cursor: pointer; font-size: 16px; padding: 0 10px; opacity: 0.5; transition: 0.2s; user-select: none; } 
-        .clear-btn:hover { opacity: 1; background: rgba(2ef, 68, 68, 0.1); }
+        .clear-btn:hover { opacity: 1; background: rgba(239, 68, 68, 0.1); }
         .slot-controls { float: right; cursor: pointer; font-size: 13px; color: var(--text-muted); opacity: 0.6; padding: 2px; }
         
-        /* Utility Table for Modals */
+        /* Utility Table */
         .manage-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .manage-table th { background: rgba(0,0,0,0.4); color: var(--text-muted); padding: 12px; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); text-align: left; }
         .manage-table td { border-bottom: 1px solid var(--border); padding: 10px; font-size: 13px; text-align: left; }
         .manage-table input, .manage-table select { background: var(--bg-base); color: white; padding: 8px; border: 1px solid var(--border); border-radius: 4px; width: 100%; font-size: 13px; }
         
-        /* Gap Analysis Interactive Cards */
+        /* Interactive Cards */
         .gap-card { flex: 1; padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; transition: transform 0.2s, filter 0.2s; }
         .gap-card:hover { transform: translateY(-3px); filter: brightness(1.2); }
 
-        /* ================= MOBILE APP SPECIFIC FIXES ================= */
+        /* ================= MOBILE FIXES ================= */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
             .toolbar .btn { width: 100%; margin: 2px 0; }
             .admin-tool { width: 100%; height: auto !important; }
-            
-            /* Prevent columns from shrinking too much on phones */
             th.date-header-cell { min-width: 175px !important; }
             .shift-label { min-width: 120px !important; }
-            
             .dashboard { grid-template-columns: repeat(2, 1fr); }
             .stat-card { padding: 10px; }
             .stat-card h3 { font-size: 20px; }
-            
-            .modal-content { padding: 15px; width: 98%; }
+            .modal-content { width: 98%; }
+            .modal-body { padding: 15px; }
         }
 
         /* ================= PRINT SETUP ================= */
@@ -159,21 +144,15 @@
             @page { size: 14in 8.5in; margin: 0.5in; }
             body { background: white !important; color: black !important; padding: 0; font-size: 10pt; }
             .dashboard, .toolbar, .slot-controls, .clear-btn, .sidebar, .modal, .no-print { display: none !important; }
-            
             .table-container { background: white !important; border: none; max-height: none; overflow: visible; padding: 0; box-shadow: none; }
             table { width: 100% !important; border-collapse: collapse !important; border: 2px solid black !important; }
-            
             thead th { position: static; background-color: #e2e8f0 !important; color: black !important; border: 1px solid #000 !important; font-size: 10pt; padding: 5px; font-weight: bold; text-align: center; }
             th, td { border: 1px solid #000 !important; padding: 3px !important; height: 26px; font-size: 10pt; text-align: center; color: black !important; min-width: auto !important; }
-            
             .shift-separator td { border-bottom: 1px solid #000 !important; }
-            
             .dept-row { display: table-row !important; }
             .dept-header { border-top: 2px solid black !important; background-color: #d1d5db !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: black !important; padding: 5px !important; text-align: left !important; }
-            
             .badge { background: transparent !important; color: black !important; border: none !important; padding: 0 !important; }
             .shift-label { text-align: left !important; border-right: 1px solid black !important; }
-            
             input[type="text"].soldier-input { color: black !important; width: 100%; padding: 0; font-size: 10pt; text-align: center; }
             .input-wrapper { border: none !important; background: transparent !important; justify-content: center; min-width: auto !important; }
             .header-title { color: black !important; font-size: 16pt; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px; font-weight: bold; }
@@ -203,24 +182,17 @@
     <div class="toolbar">
         <button id="loginBtn" class="btn btn-danger" onclick="toggleLogin()">🔒 Restricted Area (Login)</button>
         <button class="btn btn-outline admin-tool" onclick="authCheck(openManageModal)" style="display:none;">⚙️ Database Mgmt</button>
-        
         <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;" class="admin-tool"></div>
-        
         <button class="btn btn-success" onclick="authCheck(autoAssignAllDuties)">⚡ Auto Deploy</button>
         <button class="btn btn-outline" onclick="toggleSidebar()">👥 Available Staff</button>
         <button class="btn btn-outline" onclick="authCheck(addDateColumn)">➕ Add Column</button>
-        
         <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;" class="admin-tool"></div>
-        
         <button class="btn btn-outline admin-tool" onclick="authCheck(exportBackupJSON)" style="display:none;">📥 DB Backup</button>
         <button class="btn btn-outline admin-tool" onclick="authCheck(() => document.getElementById('backupFileBox').click())" style="display:none;">📤 Restore</button>
         <input type="file" id="backupFileBox" style="display:none" accept=".json" onchange="importBackupJSON(event)">
-        
         <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;"></div>
-        
         <button class="btn btn-purple" onclick="openOpSummaryModal()">📊 Gap Analysis</button>
         <button class="btn btn-outline admin-tool" onclick="openReportModal()" style="display:none;">📈 Monthly Data</button>
-        
         <div style="margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
             <button class="btn btn-outline" onclick="exportToWord()">📄 Export Word</button>
             <button class="btn btn-outline" onclick="window.print()">🖨️ Print Roster</button>
@@ -239,24 +211,28 @@
     <!-- DB Manage Modal -->
     <div id="manageModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('manageModal')">&times;</span>
-            <div class="modal-header">Manpower Database Registry</div>
-            <div style="display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-base); padding: 15px; border-radius: 4px; border:1px solid var(--border); align-items: center; flex-wrap: wrap;">
-                <input type="text" id="newId" placeholder="Mil No" style="padding: 8px; width: 100px; background:transparent; border:1px solid var(--border); color:white; border-radius:4px;">
-                <select id="newRank" style="padding: 8px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;"><option value="SWO">SWO</option><option value="WO">WO</option><option value="Sgt">Sgt</option><option value="Cpl">Cpl</option><option value="Lcpl">Lcpl</option><option value="Snk" selected>Snk</option></select>
-                <select id="newTrade" style="padding: 8px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;"><option value="MA" selected>MA</option><option value="ICA">ICA</option><option value="OTA">OTA</option><option value="PMA">PMA</option><option value="F/A">F/A</option><option value="STA">STA</option><option value="RETD">RETD</option><option value="Other">Other</option></select>
-                <input type="text" id="newName" placeholder="Full Name" style="padding: 8px; width: 200px; background:transparent; border:1px solid var(--border); color:white; border-radius:4px;">
-                <button class="btn" onclick="addSoldier()">Register</button>
-                <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="🔍 Quick Search..." style="margin-left:auto; padding: 8px; width: 250px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;">
+            <div class="modal-header">
+                <span>Manpower Database Registry</span>
+                <span class="close-modal" onclick="closeModal('manageModal')">&times;</span>
             </div>
-            <div style="overflow-x:auto;">
-                <table class="manage-table" id="manageTable">
-                    <thead><tr><th>Mil No</th><th>Rank</th><th>Trade</th><th>Name</th><th>Appt.</th><th>Role</th><th>Status</th><th>Leave Date</th><th style="text-align:center;">Action</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
-                <button class="btn btn-success" style="padding: 12px 25px;" onclick="saveAllStaff()">💾 Commit Changes to Server</button>
+            <div class="modal-body">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-base); padding: 15px; border-radius: 4px; border:1px solid var(--border); align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="newId" placeholder="Mil No" style="padding: 8px; width: 100px; background:transparent; border:1px solid var(--border); color:white; border-radius:4px;">
+                    <select id="newRank" style="padding: 8px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;"><option value="SWO">SWO</option><option value="WO">WO</option><option value="Sgt">Sgt</option><option value="Cpl">Cpl</option><option value="Lcpl">Lcpl</option><option value="Snk" selected>Snk</option></select>
+                    <select id="newTrade" style="padding: 8px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;"><option value="MA" selected>MA</option><option value="ICA">ICA</option><option value="OTA">OTA</option><option value="PMA">PMA</option><option value="F/A">F/A</option><option value="STA">STA</option><option value="RETD">RETD</option><option value="Other">Other</option></select>
+                    <input type="text" id="newName" placeholder="Full Name" style="padding: 8px; width: 200px; background:transparent; border:1px solid var(--border); color:white; border-radius:4px;">
+                    <button class="btn" onclick="addSoldier()">Register</button>
+                    <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="🔍 Quick Search..." style="margin-left:auto; padding: 8px; width: 250px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;">
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="manage-table" id="manageTable">
+                        <thead><tr><th>Mil No</th><th>Rank</th><th>Trade</th><th>Name</th><th>Appt.</th><th>Role</th><th>Status</th><th>Leave Date</th><th style="text-align:center;">Action</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                    <button class="btn btn-success" style="padding: 12px 25px;" onclick="saveAllStaff()">💾 Commit Changes to Server</button>
+                </div>
             </div>
         </div>
     </div>
@@ -264,44 +240,78 @@
     <!-- List Details Modal -->
     <div id="detailsModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
-            <span class="close-modal" onclick="closeModal('detailsModal')">&times;</span>
-            <div class="modal-header" id="detailsTitle">List</div>
-            <table class="manage-table" id="detailsTable">
-                <thead><tr><th>Mil No</th><th>Rank & Name</th><th>Current Status</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="modal-header">
+                <span id="detailsTitle">List</span>
+                <span class="close-modal" onclick="closeModal('detailsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="manage-table" id="detailsTable">
+                    <thead><tr><th>Mil No</th><th>Rank & Name</th><th>Current Status</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
     
     <!-- Op Summary Modal -->
     <div id="opSummaryModal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
-            <span class="close-modal" onclick="closeModal('opSummaryModal')">&times;</span>
-            <div class="modal-header">
-                <div>Tactical Resource Gap Analysis</div>
-                <div style="font-size: 14px; text-transform: none; display: flex; align-items: center; gap: 10px;">
-                    <span style="color:var(--text-muted);">Select Date:</span>
-                    <span id="gapDateContainer"></span>
+            <div class="modal-header" style="align-items:flex-start;">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <span>Tactical Resource Gap Analysis</span>
+                    <div style="font-size: 14px; text-transform: none; display: flex; align-items: center; gap: 10px;">
+                        <span style="color:var(--text-muted);">Select Date:</span>
+                        <span id="gapDateContainer"></span>
+                    </div>
                 </div>
+                <span class="close-modal" onclick="closeModal('opSummaryModal')" style="margin-top:-5px;">&times;</span>
             </div>
-            <div id="opSummaryContent"></div>
-            <div id="gapDetailView" style="margin-top: 20px;"></div>
+            <div class="modal-body">
+                <div id="opSummaryContent"></div>
+                <div id="gapDetailView" style="margin-top: 20px;"></div>
+            </div>
         </div>
     </div>
 
     <!-- Monthly Report Modal -->
     <div id="reportModal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
-            <span class="close-modal" onclick="closeModal('reportModal')">&times;</span>
-            <div class="modal-header">Individual Duty Analytics</div>
-            <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap:wrap; background: var(--bg-base); padding: 15px; border-radius: 4px; border: 1px solid var(--border);">
-                <div><span style="color:var(--text-muted); font-size:12px; font-weight:bold; margin-right:8px; text-transform:uppercase;">Select Month:</span><input type="month" id="reportMonth" style="padding:8px; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px;" onchange="generateReport()"></div>
-                <div style="margin-left:auto; width:100%; max-width:250px;"><input type="text" id="reportSearch" placeholder="Filter by Name..." style="padding:8px; width:100%; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px;" onkeyup="generateReport()"></div>
+            <div class="modal-header">
+                <span>Individual Duty Analytics</span>
+                <span class="close-modal" onclick="closeModal('reportModal')">&times;</span>
             </div>
-            <table class="manage-table" id="reportTable">
-                <thead><tr><th>Personnel</th><th style="width:80px; text-align:center;">Total Shifts</th><th>Departmental Breakdown</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap:wrap; background: var(--bg-base); padding: 15px; border-radius: 4px; border: 1px solid var(--border);">
+                    <div><span style="color:var(--text-muted); font-size:12px; font-weight:bold; margin-right:8px; text-transform:uppercase;">Select Month:</span><input type="month" id="reportMonth" style="padding:8px; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px;" onchange="generateReport()"></div>
+                    <div style="margin-left:auto; width:100%; max-width:250px;"><input type="text" id="reportSearch" placeholder="Filter by Name..." style="padding:8px; width:100%; background:var(--bg-panel); color:white; border:1px solid var(--border); border-radius:4px;" onkeyup="generateReport()"></div>
+                </div>
+                <table class="manage-table" id="reportTable">
+                    <thead><tr><th>Personnel</th><th style="width:80px; text-align:center;">Total Shifts</th><th>Departmental Breakdown</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Detailed Breakdown Modal -->
+    <div id="individualDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <span id="indivDetailsTitle">Individual Duty Details</span>
+                <span class="close-modal" onclick="closeModal('individualDetailsModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="indivDetailsContent"></div>
+        </div>
+    </div>
+
+    <!-- NEW: Shift Specific Dates Modal -->
+    <div id="shiftDatesModal" class="modal" style="z-index: 4000; background:rgba(0,0,0,0.9);">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="border-bottom-color: var(--accent);">
+                <div id="shiftDatesTitle" style="line-height:1.4;">Dates</div>
+                <span class="close-modal" onclick="closeModal('shiftDatesModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="shiftDatesContent"></div>
         </div>
     </div>
 
@@ -323,7 +333,6 @@
         let soldiersObjList = []; let slotCounts = {}; let rosterData = {}; let activeDates = []; let currentSidebarDate = ""; let isDataLoaded = false;
         let currentRole = 'none'; const USER_PIN = "9890"; const ADMIN_PIN = "2009890";
 
-        // Security
         function toggleLogin() {
             if (currentRole !== 'none') { currentRole = 'none'; updateUIPermissions(); document.getElementById('loginBtn').innerHTML = "🔒 Restricted Area (Login)"; document.getElementById('loginBtn').className = "btn btn-danger"; alert("System Logged Out."); } 
             else { let pin = prompt("Enter Security PIN:"); if (pin === ADMIN_PIN) { currentRole = 'admin'; updateUIPermissions(); document.getElementById('loginBtn').innerHTML = "🔓 Admin Active (Logout)"; document.getElementById('loginBtn').className = "btn btn-success"; } else if (pin === USER_PIN) { currentRole = 'user'; updateUIPermissions(); document.getElementById('loginBtn').innerHTML = "🔓 User Active (Logout)"; document.getElementById('loginBtn').className = "btn"; } else if(pin !== null) alert("Access Denied: Invalid PIN."); }
@@ -346,7 +355,6 @@
         function sanitizeRosterData(rData) { let clean = {}; for (let date in rData) { clean[date] = {}; for (let key in rData[date]) { clean[date][cleanKey(key)] = rData[date][key]; } } return clean; }
         function sanitizeSlotCounts(counts) { let clean = {}; for (let key in counts) { clean[cleanKey(key)] = counts[key]; } return clean; }
 
-        // DB Sync
         database.ref('/').on('value', (snapshot) => {
             const data = snapshot.val(); document.getElementById('loadingOverlay').style.display = 'none';
             if (data && data.soldiersObjList && Object.keys(data.soldiersObjList).length > 0) { soldiersObjList = Object.values(data.soldiersObjList).filter(s => s != null); slotCounts = data.slotCounts || {}; rosterData = data.rosterData || {}; activeDates = data.activeDates ? Object.values(data.activeDates).filter(d => d != null) : []; }
@@ -356,7 +364,6 @@
         }, (error) => { document.getElementById('errorText').innerHTML = `Connection Failure: ${error.message}`; });
         function saveStateToFirebase() { if(isDataLoaded) database.ref('/').set({ soldiersObjList, slotCounts: sanitizeSlotCounts(slotCounts), rosterData: sanitizeRosterData(rosterData), activeDates }); }
 
-        // UI Dashboard Update
         function updateDashboard() {
             let total = soldiersObjList.length; let active = 0, leave = 0, td = 0, admin = 0, totalMA = 0;
             soldiersObjList.forEach(s => {
@@ -369,7 +376,6 @@
             document.getElementById('statTD').innerText = td; document.getElementById('statAdmin').innerText = admin;
         }
 
-        // Main Rendering Logic
         function renderTable() {
             const thead = document.querySelector('#rosterTable thead'); const tbody = document.querySelector('#rosterTable tbody');
             let trHead = `<tr><th class="shift-label" style="text-transform:uppercase; letter-spacing:1px; color:white;">Department / Sector</th>`; let dlHtml = '';
@@ -425,7 +431,6 @@
             }); tbody.innerHTML = tbodyHtml; updateDatalists();
         }
 
-        // Toggle Department Rows
         function toggleDept(index) {
             let rows = document.querySelectorAll(`.dept-row-${index}`);
             let icon = document.getElementById(`icon-dept-${index}`);
@@ -435,7 +440,6 @@
             icon.innerText = isHidden ? '▼' : '▶';
         }
 
-        // Action Handlers
         function changeDateHandler(index, newDate) { if(currentRole === 'none') return alert("Action Locked."); activeDates[index] = newDate; saveStateToFirebase(); renderTable(); }
         function removeDateColumnHandler(index) { if(currentRole === 'none') return alert("Action Locked."); if(activeDates.length > 1) { activeDates.splice(index, 1); saveStateToFirebase(); renderTable(); } }
         function modifySlotHandler(key, delta) { if(currentRole === 'none') return alert("Action Locked."); let c = slotCounts[key]; if(c === undefined) c = 2; if (c + delta >= 1) { slotCounts[key] = c + delta; saveStateToFirebase(); renderTable(); } }
@@ -448,7 +452,6 @@
         function addDateColumn() { if(activeDates.length >= 7) return alert("Limit: 7 Days."); let lDate = new Date(activeDates[activeDates.length - 1]); lDate.setDate(lDate.getDate() + 1); activeDates.push(lDate.toISOString().split('T')[0]); saveStateToFirebase(); renderTable(); }
         function autoAssignAllDuties() { if(activeDates.length < 2) return; let tDate = activeDates[activeDates.length - 1]; let sDate = activeDates[activeDates.length - 2]; if(!rosterData[tDate]) rosterData[tDate] = {}; let c = 0; if(rosterData[sDate]) { for(let k in rosterData[sDate]) { let n = rosterData[sDate][k]; if(n) { let obj = soldiersObjList.find(s => s && s.displayName === n); if(obj && !obj.appointment && (obj.status||'').toLowerCase() === 'active' && !rosterData[tDate][k]) { rosterData[tDate][k] = n; c++; } } } } if(c>0){ saveStateToFirebase(); renderTable(); alert("Deployment Auto-Generated."); } }
         
-        // Sidebar
         function toggleSidebar() { let sb = document.getElementById('freeStaffSidebar'); if (sb.classList.contains('active')) sb.classList.remove('active'); else { updateSidebar(currentSidebarDate || activeDates[0]); sb.classList.add('active'); } }
         function openFreeStaffSidebar(date) { updateSidebar(date); document.getElementById('freeStaffSidebar').classList.add('active'); }
         function updateSidebar(tDate) {
@@ -460,7 +463,6 @@
         function updateDatalists() { activeDates.forEach(date => { let dl = document.getElementById(`list_${date}`); if(dl) { dl.innerHTML = soldiersObjList.filter(s => s && !(s.appointment && s.appointment !== "General") && !(s.status||'').toLowerCase().match(/leave|td|course/)).map(s => `<option value="${s.displayName}">`).join(''); } }); }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
         
-        // Database
         function openManageModal() { document.getElementById('manageModal').style.display = "flex"; renderManageTable(); }
         function renderManageTable() {
             document.querySelector('#manageTable tbody').innerHTML = soldiersObjList.map((s,i) => s ? `<tr>
@@ -480,7 +482,6 @@
         function saveAllStaff() { soldiersObjList.forEach((s,i) => { if(s) { let oN = s.displayName; s.id = document.getElementById(`editId_${i}`).value; s.rank = document.getElementById(`editRank_${i}`).value; s.trade = document.getElementById(`editTrade_${i}`).value; s.name = document.getElementById(`editName_${i}`).value; s.appointment = document.getElementById(`appt_${i}`).value; s.role = document.getElementById(`role_${i}`).value; s.status = document.getElementById(`status_${i}`).value; s.leaveUntil = s.status==='leave'?document.getElementById(`lEnd_${i}`).value:""; s.displayName = `${s.rank} (${s.trade}) ${s.name}`; if (oN !== s.displayName) { for(let d in rosterData) for(let k in rosterData[d]) if(rosterData[d][k] === oN) rosterData[d][k] = s.displayName; } } }); saveStateToFirebase(); closeModal('manageModal'); alert("Records Updated."); }
         function showDetails(type) { let fil = []; let t = ""; if (type === 'total') { fil = soldiersObjList; t = "Total Force Protocol"; } else if (type === 'ma_total') { fil = soldiersObjList.filter(s => s && (s.trade||'').toUpperCase() === 'MA'); t = "Core MA Base"; } else if (type === 'active') { fil = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'active' && (!s.appointment || s.appointment === "General")); t = "Active Duty Personnel"; } else if (type === 'leave') { fil = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'leave'); t = "Leave Records"; } else if (type === 'td') { fil = soldiersObjList.filter(s => s && ((s.status||'').toLowerCase().includes('td') || (s.status||'').toLowerCase().includes('course'))); t = "TD / Course Assignment"; } else if (type === 'admin') { fil = soldiersObjList.filter(s => s && s.appointment && s.appointment !== "General"); t = "Special Appointments"; } document.querySelector('#detailsTable tbody').innerHTML = fil.map(s => { if(!s) return ''; let st = (s.status||'').toLowerCase(); return `<tr><td>${s.id||''}</td><td><strong style="color:var(--accent);">${s.displayName}</strong></td><td>${st==='leave'?'<span style="color:var(--warning);">Leave till '+s.leaveUntil+'</span>' : (s.appointment? s.appointment : (st.includes('td')||st.includes('course')? '<span style="color:var(--purple);">'+s.status.toUpperCase()+'</span>' : '<span style="color:var(--success);">Active</span>'))}</td></tr>`; }).join(''); document.getElementById('detailsTitle').innerText = t; document.getElementById('detailsModal').style.display = "flex"; }
         
-        // ================= Date-wise Tactical Gap Analysis & Drill-down =================
         let globalGapData = { maList: [], otherList: [], emptyList: [] };
 
         function openOpSummaryModal(selectedDate = null) {
@@ -539,9 +540,120 @@
             document.getElementById('gapDetailView').innerHTML = `<div style="color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;">${title}</div>${html}`;
         }
 
-        // Monthly Reports
+        // ================= Individual Detailed Breakdown =================
+        function openIndividualDetails(name) {
+            let m = document.getElementById('reportMonth').value;
+            let details = {}; 
+            let totalShifts = 0;
+
+            for (let d in rosterData) {
+                if (m && !d.startsWith(m)) continue;
+                for (let k in rosterData[d]) {
+                    if (rosterData[d][k] === name) {
+                        let info = getDeptAndShiftFromKey(k);
+                        let dName = info.dept;
+                        let sName = info.shift;
+
+                        if (!details[dName]) details[dName] = {};
+                        if (!details[dName][sName]) details[dName][sName] = []; // Changed to array for storing dates
+                        
+                        details[dName][sName].push(d); // Push exact date
+                        totalShifts++;
+                    }
+                }
+            }
+
+            let monthDisplay = m ? `(Month: ${m})` : "(All Time)";
+            document.getElementById('indivDetailsTitle').innerText = `Duty Report: ${name} ${monthDisplay}`;
+
+            let html = `<div style="margin-bottom:15px; font-size:14px; color:var(--text-muted);">Total Assignemts Found: <strong style="color:var(--accent); font-size:18px;">${totalShifts}</strong></div>`;
+            html += `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;">`;
+            html += `<thead><tr><th>Department</th><th>Shift Breakdown <span style="font-size:10px;color:var(--success);text-transform:none;">(Click on a shift to view dates)</span></th><th style="text-align:center;">Total</th></tr></thead><tbody>`;
+
+            if (totalShifts === 0) {
+                html += `<tr><td colspan="3" style="text-align:center; color:var(--warning);">No duties found for this period.</td></tr>`;
+            } else {
+                for (let dept in details) {
+                    let deptTotal = 0;
+                    let shiftsHtml = [];
+                    for (let shift in details[dept]) {
+                        let count = details[dept][shift].length;
+                        deptTotal += count;
+                        
+                        let bClass = "badge-morning";
+                        if (shift.includes("Evening")) bClass = "badge-evening";
+                        else if (shift.includes("Night") || shift.includes("NON") || shift.includes("PTS")) bClass = "badge-night";
+
+                        let datesListStr = details[dept][shift].sort().join(','); // Prepare date list string for function parameter
+
+                        // Added clickable functionality to specific shift badges
+                        shiftsHtml.push(`<span class="badge ${bClass} badge-clickable" style="margin-right:5px; margin-bottom:5px;" onclick="showShiftDates('${name}', '${dept}', '${shift}', '${datesListStr}')" title="Click to see dates">${shift}: ${count}</span>`);
+                    }
+                    html += `<tr>
+                        <td style="color:white; font-weight:bold;">${dept}</td>
+                        <td style="line-height:2.2;">${shiftsHtml.join('')}</td>
+                        <td style="text-align:center; font-weight:bold; color:var(--accent);">${deptTotal}</td>
+                    </tr>`;
+                }
+            }
+            html += `</tbody></table>`;
+            document.getElementById('indivDetailsContent').innerHTML = html;
+            document.getElementById('individualDetailsModal').style.display = 'flex';
+        }
+
+        // NEW: Function to render the explicit dates array popup
+        function showShiftDates(name, dept, shift, datesStr) {
+            let dates = datesStr.split(',');
+            
+            let datesHtml = dates.map((d, index) => {
+                return `<div style="padding:10px; background:var(--bg-panel); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:4px; margin-bottom:8px; font-weight:bold; color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <span><span style="color:var(--text-muted); font-size:12px; margin-right:10px;">${index+1}.</span> 📅 ${d}</span>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('shiftDatesTitle').innerHTML = `<div style="color:var(--accent); font-size:18px;">${name}</div> <div style="font-size:12px; color:var(--text-muted); font-weight:normal; margin-top:3px; text-transform:none;">${dept} &rarr; ${shift}</div>`;
+            document.getElementById('shiftDatesContent').innerHTML = datesHtml;
+            document.getElementById('shiftDatesModal').style.display = 'flex';
+        }
+
+        // Monthly Reports 
         function openReportModal() { document.getElementById('reportModal').style.display = "flex"; generateReport(); }
-        function generateReport() { let m = document.getElementById('reportMonth').value; let s = document.getElementById('reportSearch').value.toLowerCase(); let tbody = document.querySelector('#reportTable tbody'); tbody.innerHTML = ''; let rep = {}; soldiersObjList.forEach(obj => { if(obj) rep[obj.displayName] = { count: 0, dBreak: {} }; }); for(let d in rosterData) { if(m && !d.startsWith(m)) continue; for(let k in rosterData[d]) { let n = rosterData[d][k]; if(n && rep[n]) { rep[n].count++; let info = getDeptAndShiftFromKey(k); let dn = info.dept; if(!rep[n].dBreak[dn]) rep[n].dBreak[dn] = 0; rep[n].dBreak[dn]++; } } } for(let n in rep) { if(s && !n.toLowerCase().includes(s)) continue; if(rep[n].count > 0) { let bStr = Object.entries(rep[n].dBreak).map(([d,c]) => `<span style="color:var(--text-muted);">${d}:</span> <strong style="color:white;">${c}</strong>`).join(' &nbsp;|&nbsp; '); tbody.innerHTML += `<tr><td><strong style="color:var(--accent);">${n}</strong></td><td style="text-align:center;"><span class="badge" style="background:var(--accent); color:#000; font-size:12px;">${rep[n].count}</span></td><td style="font-size:12px;">${bStr}</td></tr>`; } } }
+        function generateReport() { 
+            let m = document.getElementById('reportMonth').value; 
+            let s = document.getElementById('reportSearch').value.toLowerCase(); 
+            let tbody = document.querySelector('#reportTable tbody'); 
+            tbody.innerHTML = ''; 
+            
+            let rep = {}; 
+            soldiersObjList.forEach(obj => { if(obj) rep[obj.displayName] = { count: 0, dBreak: {} }; }); 
+            
+            for(let d in rosterData) { 
+                if(m && !d.startsWith(m)) continue; 
+                for(let k in rosterData[d]) { 
+                    let n = rosterData[d][k]; 
+                    if(n && rep[n]) { 
+                        rep[n].count++; 
+                        let info = getDeptAndShiftFromKey(k); 
+                        let dn = info.dept; 
+                        if(!rep[n].dBreak[dn]) rep[n].dBreak[dn] = 0; 
+                        rep[n].dBreak[dn]++; 
+                    } 
+                } 
+            } 
+            
+            for(let n in rep) { 
+                if(s && !n.toLowerCase().includes(s)) continue; 
+                if(rep[n].count > 0) { 
+                    let bStr = Object.entries(rep[n].dBreak).map(([d,c]) => `<span style="color:var(--text-muted);">${d}:</span> <strong style="color:white;">${c}</strong>`).join(' &nbsp;|&nbsp; '); 
+                    
+                    tbody.innerHTML += `<tr>
+                        <td><strong style="color:var(--accent); cursor:pointer; text-decoration:underline; font-size:14px; transition:0.2s;" onmouseover="this.style.color='var(--accent-hover)'" onmouseout="this.style.color='var(--accent)'" onclick="openIndividualDetails('${n}')" title="View Detailed Report">${n}</strong></td>
+                        <td style="text-align:center;"><span class="badge" style="background:var(--accent); color:#000; font-size:12px;">${rep[n].count}</span></td>
+                        <td style="font-size:12px;">${bStr}</td>
+                    </tr>`; 
+                } 
+            } 
+        }
 
         // Export & Backup 
         function exportBackupJSON() { let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ soldiersObjList, slotCounts, rosterData, activeDates }, null, 2)); let link = document.createElement('a'); link.href = dataStr; link.download = "CMH_Roster_DB_" + activeDates[0] + ".json"; document.body.appendChild(link); link.click(); link.remove(); }
