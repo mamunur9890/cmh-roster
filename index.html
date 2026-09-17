@@ -30,6 +30,12 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
         body { background-color: var(--bg-base); color: var(--text-main); padding: 20px; font-size: 14px; overflow-x: hidden; }
         
         /* Dashboard Cards */
@@ -72,13 +78,13 @@
         
         /* Modals & Sticky Headers */
         .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); justify-content: center; align-items: center; }
-        .modal-content { background: var(--bg-panel); color: var(--text-main); padding: 0; border-radius: 8px; border: 1px solid var(--border); width: 95%; max-width: 1000px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        .modal-content { background: var(--bg-panel); color: var(--text-main); padding: 0; border-radius: 8px; border: 1px solid var(--border); width: 95%; max-width: 1050px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
         .modal-header { font-size: 18px; font-weight: bold; padding: 15px 25px; border-bottom: 1px solid var(--border); color: white; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-panel); z-index: 100; }
         .modal-body { padding: 20px 25px; }
         .close-modal { font-size: 24px; cursor: pointer; color: var(--text-muted); transition: 0.2s; margin-left: auto; line-height: 1; }
         .close-modal:hover { color: var(--danger); }
 
-        /* Main Table Architecture (Responsive Updates) */
+        /* Main Table Architecture */
         .table-container { background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; max-height: 75vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .header-title { text-align: center; font-weight: bold; font-size: 18px; margin: 15px 0; color: white; letter-spacing: 1px; }
         table { width: 100%; border-collapse: collapse; text-align: center; }
@@ -114,11 +120,12 @@
         .clear-btn:hover { opacity: 1; background: rgba(239, 68, 68, 0.1); }
         .slot-controls { float: right; cursor: pointer; font-size: 13px; color: var(--text-muted); opacity: 0.6; padding: 2px; }
         
-        /* Utility Table */
+        /* Utility Table - Optimized for Grid & Spacing */
         .manage-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .manage-table th { background: rgba(0,0,0,0.4); color: var(--text-muted); padding: 12px; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); text-align: left; }
-        .manage-table td { border-bottom: 1px solid var(--border); padding: 10px; font-size: 13px; text-align: left; }
-        .manage-table input, .manage-table select { background: var(--bg-base); color: white; padding: 8px; border: 1px solid var(--border); border-radius: 4px; width: 100%; font-size: 13px; }
+        .manage-table th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-muted); padding: 12px; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); text-align: left; z-index: 10; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .manage-table td { border-bottom: 1px solid var(--border); padding: 10px; font-size: 13px; text-align: left; white-space: nowrap; }
+        .manage-table input, .manage-table select { background: var(--bg-base); color: white; padding: 8px; border: 1px solid var(--border); border-radius: 4px; width: 100%; font-size: 13px; min-width: 100px; }
+        .manage-table select { cursor: pointer; }
         
         /* Interactive Cards */
         .gap-card { flex: 1; padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; transition: transform 0.2s, filter 0.2s; }
@@ -211,12 +218,15 @@
     <!-- DB Manage Modal -->
     <div id="manageModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <span>Manpower Database Registry</span>
-                <span class="close-modal" onclick="closeModal('manageModal')">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-base); padding: 15px; border-radius: 4px; border:1px solid var(--border); align-items: center; flex-wrap: wrap;">
+            <div class="modal-header" style="display:flex; flex-direction:column; gap:15px; align-items:stretch; padding-bottom: 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap: 15px;">
+                        <span>Manpower Database Registry</span>
+                        <button class="btn btn-success" style="padding: 6px 15px; font-size: 11px;" onclick="saveAllStaff()">💾 Save Changes</button>
+                    </div>
+                    <span class="close-modal" onclick="closeModal('manageModal')">&times;</span>
+                </div>
+                <div style="display: flex; gap: 10px; background: var(--bg-base); padding: 10px; border-radius: 4px; border:1px solid var(--border); align-items: center; flex-wrap: wrap;">
                     <input type="text" id="newId" placeholder="Mil No" style="padding: 8px; width: 100px; background:transparent; border:1px solid var(--border); color:white; border-radius:4px;">
                     <select id="newRank" style="padding: 8px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;"><option value="SWO">SWO</option><option value="WO">WO</option><option value="Sgt">Sgt</option><option value="Cpl">Cpl</option><option value="Lcpl">Lcpl</option><option value="Snk" selected>Snk</option></select>
                     <select id="newTrade" style="padding: 8px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;"><option value="MA" selected>MA</option><option value="ICA">ICA</option><option value="OTA">OTA</option><option value="PMA">PMA</option><option value="F/A">F/A</option><option value="STA">STA</option><option value="RETD">RETD</option><option value="Other">Other</option></select>
@@ -224,31 +234,32 @@
                     <button class="btn" onclick="addSoldier()">Register</button>
                     <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="🔍 Quick Search..." style="margin-left:auto; padding: 8px; width: 250px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px;">
                 </div>
-                <div style="overflow-x:auto;">
-                    <table class="manage-table" id="manageTable">
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="overflow-x:auto; overflow-y:auto; max-height: 60vh;">
+                    <table class="manage-table" id="manageTable" style="margin-top:0; border-top: none;">
                         <thead><tr><th>Mil No</th><th>Rank</th><th>Trade</th><th>Name</th><th>Appt.</th><th>Role</th><th>Status</th><th>Leave Date</th><th style="text-align:center;">Action</th></tr></thead>
                         <tbody></tbody>
                     </table>
-                </div>
-                <div style="display:flex; justify-content:flex-end; margin-top:20px;">
-                    <button class="btn btn-success" style="padding: 12px 25px;" onclick="saveAllStaff()">💾 Commit Changes to Server</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- List Details Modal -->
+    <!-- List Details Modal (Dynamic Engine Included) -->
     <div id="detailsModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
-                <span id="detailsTitle">List</span>
+                <div id="detailsTitle" style="display:flex; align-items:center; flex-wrap:wrap; gap:15px; width:100%;">List</div>
                 <span class="close-modal" onclick="closeModal('detailsModal')">&times;</span>
             </div>
-            <div class="modal-body">
-                <table class="manage-table" id="detailsTable">
-                    <thead><tr><th>Mil No</th><th>Rank & Name</th><th>Current Status</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+            <div class="modal-body" style="padding:0;">
+                <div style="overflow-x:auto; max-height:70vh;">
+                    <table class="manage-table" id="detailsTable" style="margin-top:0;">
+                        <thead><tr><th style="padding-left:25px;">Mil No</th><th>Rank & Name</th><th style="padding-right:25px;">Deployment Status</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -304,7 +315,7 @@
         </div>
     </div>
 
-    <!-- NEW: Shift Specific Dates Modal -->
+    <!-- Shift Specific Dates Modal -->
     <div id="shiftDatesModal" class="modal" style="z-index: 4000; background:rgba(0,0,0,0.9);">
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header" style="border-bottom-color: var(--accent);">
@@ -333,6 +344,19 @@
         let soldiersObjList = []; let slotCounts = {}; let rosterData = {}; let activeDates = []; let currentSidebarDate = ""; let isDataLoaded = false;
         let currentRole = 'none'; const USER_PIN = "9890"; const ADMIN_PIN = "2009890";
 
+        // ================= Core Sorter (Rank & Army No) =================
+        const rankWeights = { "SWO": 1, "WO": 2, "Sgt": 3, "Cpl": 4, "Lcpl": 5, "Snk": 6 };
+        function sortSoldiers(list) {
+            return list.sort((a, b) => {
+                let rA = rankWeights[a.rank] || 99;
+                let rB = rankWeights[b.rank] || 99;
+                if (rA !== rB) return rA - rB; 
+                let idA = a.id ? parseInt(a.id.replace(/\D/g, '')) || 9999999 : 9999999;
+                let idB = b.id ? parseInt(b.id.replace(/\D/g, '')) || 9999999 : 9999999;
+                return idA - idB; 
+            });
+        }
+
         function toggleLogin() {
             if (currentRole !== 'none') { currentRole = 'none'; updateUIPermissions(); document.getElementById('loginBtn').innerHTML = "🔒 Restricted Area (Login)"; document.getElementById('loginBtn').className = "btn btn-danger"; alert("System Logged Out."); } 
             else { let pin = prompt("Enter Security PIN:"); if (pin === ADMIN_PIN) { currentRole = 'admin'; updateUIPermissions(); document.getElementById('loginBtn').innerHTML = "🔓 Admin Active (Logout)"; document.getElementById('loginBtn').className = "btn btn-success"; } else if (pin === USER_PIN) { currentRole = 'user'; updateUIPermissions(); document.getElementById('loginBtn').innerHTML = "🔓 User Active (Logout)"; document.getElementById('loginBtn').className = "btn"; } else if(pin !== null) alert("Access Denied: Invalid PIN."); }
@@ -340,9 +364,11 @@
         function updateUIPermissions() { document.querySelectorAll('.admin-tool').forEach(el => el.style.display = (currentRole === 'admin') ? 'inline-block' : 'none'); }
         function authCheck(func) { if (currentRole === 'none') { alert("⚠️ Access Denied. Please login first."); return; } func(); }
 
+        // ================= Master Department Config =================
+        // ডেটাবেসের সাথে সিঙ্ক রাখার জন্য নাম আগেরটাই রাখা হয়েছে
         const deptsConfig = [
             { name: "E&C DEPT", shifts: ["Morning", "Evening", "Night"] },
-            { name: "ICU/POST OP/HDU", shifts: ["Morning", "Evening", "Night"] },
+            { name: "ICU/POST OP/HDU", shifts: ["Morning", "Evening", "Night"] }, 
             { name: "MED-WD/OFFRS WD", shifts: ["Morning", "Evening", "Night"] },
             { name: "SURG-WD", shifts: ["Morning", "Evening", "Night"] },
             { name: "NON FLU-DUTY", shifts: ["NON FLU-DUTY"] },
@@ -351,7 +377,22 @@
         ];
 
         function cleanKey(str) { return str ? str.replace(/[/.#$\[\]]/g, "_").replace(/\s+/g, "_") : ""; }
-        function getDeptAndShiftFromKey(slotKey) { for (let dept of deptsConfig) { for (let shift of dept.shifts) { if (slotKey.startsWith(cleanKey(dept.name + "_" + shift))) return { dept: dept.name, shift: shift }; } } return { dept: "Unknown", shift: "Unknown" }; }
+        
+        function getDeptAndShiftFromKey(slotKey) { 
+            for (let dept of deptsConfig) { 
+                for (let shift of dept.shifts) { 
+                    if (slotKey.startsWith(cleanKey(dept.name + "_" + shift))) {
+                        if (shift === "WD/M OFFICE") return { dept: "Ward Master Office", shift: "24 Hrs" };
+                        
+                        // HDU Interceptor: ডেটাবেসে ICU থাকলেও ড্যাশবোর্ডে HDU দেখাবে
+                        let finalDeptName = dept.name === "ICU/POST OP/HDU" ? "HDU" : dept.name;
+                        return { dept: finalDeptName, shift: shift }; 
+                    }
+                } 
+            } 
+            return { dept: "Unknown", shift: "Unknown" }; 
+        }
+
         function sanitizeRosterData(rData) { let clean = {}; for (let date in rData) { clean[date] = {}; for (let key in rData[date]) { clean[date][cleanKey(key)] = rData[date][key]; } } return clean; }
         function sanitizeSlotCounts(counts) { let clean = {}; for (let key in counts) { clean[cleanKey(key)] = counts[key]; } return clean; }
 
@@ -394,15 +435,18 @@
             
             let tbodyHtml = '';
             deptsConfig.forEach((dept, dIndex) => {
+                // HDU Interceptor for Table Headers
+                let displayDeptName = dept.name === "ICU/POST OP/HDU" ? "HDU" : dept.name;
+
                 tbodyHtml += `<tr><td colspan="${activeDates.length + 1}" class="dept-header" onclick="toggleDept(${dIndex})">
-                    <span id="icon-dept-${dIndex}">▼</span> &nbsp; ${dept.name}
+                    <span id="icon-dept-${dIndex}">▼</span> &nbsp; ${displayDeptName}
                 </td></tr>`;
                 
                 dept.shifts.forEach((shift, sIndex) => {
                     let rawKey = dept.name + "_" + shift; let key = cleanKey(rawKey); 
-                    let count = slotCounts[key] !== undefined ? slotCounts[key] : ((shift.includes("OPD")||shift.includes("PTS")||shift.includes("NON FLU"))?1:(shift.includes("Morning")?3:2));
-                    let badgeClass = shift.includes("Morning") || shift.includes("OPD") ? "badge-morning" : (shift.includes("Evening") ? "badge-evening" : "badge-night");
-                    let shiftNameDisplay = shift.includes("NON FLU") || shift.includes("PTS") ? shift : (shift.includes("OPD") ? shift.replace("-OPD","").replace(" OPD","") : shift);
+                    let count = slotCounts[key] !== undefined ? slotCounts[key] : ((shift.includes("OPD")||shift.includes("PTS")||shift.includes("NON FLU")||shift.includes("WD/M"))?1:(shift.includes("Morning")?3:2));
+                    let badgeClass = shift.includes("Morning") || shift.includes("OPD") || shift.includes("WD/M") ? "badge-morning" : (shift.includes("Evening") ? "badge-evening" : "badge-night");
+                    let shiftNameDisplay = shift.includes("NON FLU") || shift.includes("PTS") || shift.includes("WD/M") ? shift : (shift.includes("OPD") ? shift.replace("-OPD","").replace(" OPD","") : shift);
                     
                     let isLastShiftOfDept = (sIndex === dept.shifts.length - 1);
 
@@ -458,29 +502,118 @@
             tDate = tDate || activeDates[0]; currentSidebarDate = tDate; document.getElementById('sidebarDateDisplay').innerText = tDate;
             let aToday = []; if(rosterData[tDate]) Object.values(rosterData[tDate]).forEach(n => { if(n) aToday.push(n.trim()); });
             let fStaff = soldiersObjList.filter(s => { if(!s) return false; let isAd = (s.appointment && s.appointment !== "General"); let st = (s.status || "").toLowerCase(); let isUn = (st==='leave'||st.includes('td')||st.includes('course')); return !(isAd || isUn || aToday.includes(s.displayName)); });
+            
+            fStaff = sortSoldiers(fStaff);
+
             document.getElementById('freeStaffList').innerHTML = fStaff.map(s => `<div class="drag-item" draggable="true" ondragstart="dragStart(event, '${s.displayName}', null, null)"><span>${s.displayName}</span> <span style="color:var(--text-muted);">🔀</span></div>`).join('') || `<div style="text-align:center; color:var(--danger); padding:20px; font-weight:bold;">All Personnel Deployed!</div>`;
         }
         function updateDatalists() { activeDates.forEach(date => { let dl = document.getElementById(`list_${date}`); if(dl) { dl.innerHTML = soldiersObjList.filter(s => s && !(s.appointment && s.appointment !== "General") && !(s.status||'').toLowerCase().match(/leave|td|course/)).map(s => `<option value="${s.displayName}">`).join(''); } }); }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
         
         function openManageModal() { document.getElementById('manageModal').style.display = "flex"; renderManageTable(); }
+        
+        // ================= Custom Table Input Resizing Applied =================
         function renderManageTable() {
+            soldiersObjList = sortSoldiers(soldiersObjList);
+
             document.querySelector('#manageTable tbody').innerHTML = soldiersObjList.map((s,i) => s ? `<tr>
-                <td><input type="text" id="editId_${i}" value="${s.id||''}"></td>
-                <td><select id="editRank_${i}"><option value="SWO" ${s.rank==='SWO'?'selected':''}>SWO</option><option value="WO" ${s.rank==='WO'?'selected':''}>WO</option><option value="Sgt" ${s.rank==='Sgt'?'selected':''}>Sgt</option><option value="Cpl" ${s.rank==='Cpl'?'selected':''}>Cpl</option><option value="Lcpl" ${s.rank==='Lcpl'?'selected':''}>Lcpl</option><option value="Snk" ${s.rank==='Snk'?'selected':''}>Snk</option></select></td>
-                <td><select id="editTrade_${i}"><option value="MA" ${s.trade==='MA'?'selected':''}>MA</option><option value="ICA" ${s.trade==='ICA'?'selected':''}>ICA</option><option value="OTA" ${s.trade==='OTA'?'selected':''}>OTA</option><option value="PMA" ${s.trade==='PMA'?'selected':''}>PMA</option><option value="F/A" ${s.trade==='F/A'?'selected':''}>F/A</option><option value="STA" ${s.trade==='STA'?'selected':''}>STA</option><option value="RETD" ${s.trade==='RETD'?'selected':''}>RETD</option><option value="Other" ${s.trade==='Other'?'selected':''}>Other</option></select></td>
-                <td><input type="text" id="editName_${i}" value="${s.name||''}" class="search-name"></td>
-                <td><input type="text" id="appt_${i}" value="${s.appointment||''}"></td>
-                <td><select id="role_${i}"><option value="General" ${s.role==='General'?'selected':''}>General</option><option value="EC_Incharge" ${s.role==='EC_Incharge'?'selected':''}>E&C Incharge</option></select></td>
-                <td><select id="status_${i}" onchange="document.getElementById('lWrap_${i}').style.display=(this.value==='leave')?'block':'none'"><option value="active" ${(s.status||'').toLowerCase()==='active'?'selected':''}>Active</option><option value="leave" ${(s.status||'').toLowerCase()==='leave'?'selected':''}>Leave</option><option value="td" ${(s.status||'').toLowerCase()==='td'?'selected':''}>TD</option><option value="course" ${(s.status||'').toLowerCase()==='course'?'selected':''}>Course</option></select></td>
-                <td><div id="lWrap_${i}" style="display:${(s.status||'').toLowerCase()==='leave'?'block':'none'};"><input type="date" id="lEnd_${i}" value="${s.leaveUntil||''}"></div></td>
+                <td><input type="text" id="editId_${i}" value="${s.id||''}" style="min-width: 90px; width: 90px;"></td>
+                <td><select id="editRank_${i}" style="min-width: 70px; width: 70px;"><option value="SWO" ${s.rank==='SWO'?'selected':''}>SWO</option><option value="WO" ${s.rank==='WO'?'selected':''}>WO</option><option value="Sgt" ${s.rank==='Sgt'?'selected':''}>Sgt</option><option value="Cpl" ${s.rank==='Cpl'?'selected':''}>Cpl</option><option value="Lcpl" ${s.rank==='Lcpl'?'selected':''}>Lcpl</option><option value="Snk" ${s.rank==='Snk'?'selected':''}>Snk</option></select></td>
+                <td><select id="editTrade_${i}" style="min-width: 75px; width: 75px;"><option value="MA" ${s.trade==='MA'?'selected':''}>MA</option><option value="ICA" ${s.trade==='ICA'?'selected':''}>ICA</option><option value="OTA" ${s.trade==='OTA'?'selected':''}>OTA</option><option value="PMA" ${s.trade==='PMA'?'selected':''}>PMA</option><option value="F/A" ${s.trade==='F/A'?'selected':''}>F/A</option><option value="STA" ${s.trade==='STA'?'selected':''}>STA</option><option value="RETD" ${s.trade==='RETD'?'selected':''}>RETD</option><option value="Other" ${s.trade==='Other'?'selected':''}>Other</option></select></td>
+                <td><input type="text" id="editName_${i}" value="${s.name||''}" class="search-name" style="min-width: 220px; width: 100%;"></td>
+                <td><input type="text" id="appt_${i}" value="${s.appointment||''}" style="min-width: 120px; width: 100%;"></td>
+                <td><select id="role_${i}" style="min-width: 90px; width: 90px;"><option value="General" ${(!s.role || s.role==='General')?'selected':''}>General</option><option value="Incharge" ${s.role==='Incharge'?'selected':''}>Incharge</option></select></td>
+                <td><select id="status_${i}" onchange="document.getElementById('lWrap_${i}').style.display=(this.value==='leave')?'block':'none'" style="min-width: 95px; width: 95px;"><option value="active" ${(s.status||'').toLowerCase()==='active'?'selected':''}>Active</option><option value="leave" ${(s.status||'').toLowerCase()==='leave'?'selected':''}>Leave</option><option value="td" ${(s.status||'').toLowerCase()==='td'?'selected':''}>TD</option><option value="course" ${(s.status||'').toLowerCase()==='course'?'selected':''}>Course</option></select></td>
+                <td><div id="lWrap_${i}" style="display:${(s.status||'').toLowerCase()==='leave'?'block':'none'};"><input type="date" id="lEnd_${i}" value="${s.leaveUntil||''}" style="min-width: 110px; width: 110px;"></div></td>
                 <td style="text-align:center;"><button onclick="soldiersObjList.splice(${i},1); renderManageTable();" style="background:rgba(239, 68, 68, 0.2);color:var(--danger);border:1px solid var(--danger);border-radius:4px;padding:6px;cursor:pointer;">DEL</button></td>
             </tr>` : '').join('');
         }
+
         function searchTable() { let i = document.getElementById("searchInput").value.toLowerCase(); document.querySelectorAll("#manageTable tbody tr").forEach(tr => { let n = tr.querySelector(".search-name"); if (n) tr.style.display = n.value.toLowerCase().includes(i) ? "" : "none"; }); }
         function addSoldier() { let id = document.getElementById('newId').value; let rank = document.getElementById('newRank').value; let trade = document.getElementById('newTrade').value; let name = document.getElementById('newName').value; if(!id || !name) return; soldiersObjList.push({ id, rank, trade, name, role: "General", appointment: "", status: "active", leaveUntil: "", displayName: `${rank} (${trade}) ${name}` }); renderManageTable(); }
         function saveAllStaff() { soldiersObjList.forEach((s,i) => { if(s) { let oN = s.displayName; s.id = document.getElementById(`editId_${i}`).value; s.rank = document.getElementById(`editRank_${i}`).value; s.trade = document.getElementById(`editTrade_${i}`).value; s.name = document.getElementById(`editName_${i}`).value; s.appointment = document.getElementById(`appt_${i}`).value; s.role = document.getElementById(`role_${i}`).value; s.status = document.getElementById(`status_${i}`).value; s.leaveUntil = s.status==='leave'?document.getElementById(`lEnd_${i}`).value:""; s.displayName = `${s.rank} (${s.trade}) ${s.name}`; if (oN !== s.displayName) { for(let d in rosterData) for(let k in rosterData[d]) if(rosterData[d][k] === oN) rosterData[d][k] = s.displayName; } } }); saveStateToFirebase(); closeModal('manageModal'); alert("Records Updated."); }
-        function showDetails(type) { let fil = []; let t = ""; if (type === 'total') { fil = soldiersObjList; t = "Total Force Protocol"; } else if (type === 'ma_total') { fil = soldiersObjList.filter(s => s && (s.trade||'').toUpperCase() === 'MA'); t = "Core MA Base"; } else if (type === 'active') { fil = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'active' && (!s.appointment || s.appointment === "General")); t = "Active Duty Personnel"; } else if (type === 'leave') { fil = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'leave'); t = "Leave Records"; } else if (type === 'td') { fil = soldiersObjList.filter(s => s && ((s.status||'').toLowerCase().includes('td') || (s.status||'').toLowerCase().includes('course'))); t = "TD / Course Assignment"; } else if (type === 'admin') { fil = soldiersObjList.filter(s => s && s.appointment && s.appointment !== "General"); t = "Special Appointments"; } document.querySelector('#detailsTable tbody').innerHTML = fil.map(s => { if(!s) return ''; let st = (s.status||'').toLowerCase(); return `<tr><td>${s.id||''}</td><td><strong style="color:var(--accent);">${s.displayName}</strong></td><td>${st==='leave'?'<span style="color:var(--warning);">Leave till '+s.leaveUntil+'</span>' : (s.appointment? s.appointment : (st.includes('td')||st.includes('course')? '<span style="color:var(--purple);">'+s.status.toUpperCase()+'</span>' : '<span style="color:var(--success);">Active</span>'))}</td></tr>`; }).join(''); document.getElementById('detailsTitle').innerText = t; document.getElementById('detailsModal').style.display = "flex"; }
+        
+        // ================= Details Dynamic Engine (Upgraded with Date Picker & Multi-Duty) =================
+        function showDetails(type, forceDate = null) { 
+            let fil = []; let t = ""; 
+            if (type === 'total') { fil = soldiersObjList; t = "Total Force Protocol"; } 
+            else if (type === 'ma_total') { fil = soldiersObjList.filter(s => s && (s.trade||'').toUpperCase() === 'MA'); t = "Core MA Base"; } 
+            else if (type === 'active') { fil = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'active' && (!s.appointment || s.appointment === "General")); t = "Active Duty Personnel"; } 
+            else if (type === 'leave') { fil = soldiersObjList.filter(s => s && (s.status||'').toLowerCase() === 'leave'); t = "Leave Records"; } 
+            else if (type === 'td') { fil = soldiersObjList.filter(s => s && ((s.status||'').toLowerCase().includes('td') || (s.status||'').toLowerCase().includes('course'))); t = "TD / Course Assignment"; } 
+            else if (type === 'admin') { fil = soldiersObjList.filter(s => s && s.appointment && s.appointment !== "General"); t = "Special Appointments"; } 
+            
+            fil = sortSoldiers(fil); 
+
+            // Date Picker Logic
+            let latestDate = activeDates.length > 0 ? activeDates[activeDates.length - 1] : null;
+            let displayDate = forceDate || latestDate;
+
+            let dateOptions = activeDates.map(d => `<option value="${d}" ${d === displayDate ? 'selected' : ''}>${d}</option>`).join('');
+            let dateDropdown = activeDates.length > 0 ? `<select onchange="showDetails('${type}', this.value)" style="padding:6px; border-radius:4px; border:1px solid var(--border); background:var(--bg-panel); color:var(--accent); font-weight:bold; font-size:13px; outline:none; cursor:pointer;">${dateOptions}</select>` : '';
+
+            document.getElementById('detailsTitle').innerHTML = `<div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap; width:100%;">
+                <span>${t}</span>
+                <div style="display:flex; align-items:center; gap:5px; font-size:12px; color:var(--text-muted); text-transform:none;">
+                    📅 Date: ${dateDropdown}
+                </div>
+                <input type="text" id="detailsSearch" onkeyup="filterDetailsTable()" placeholder="🔍 Search Name or Mil No..." style="margin-left:auto; padding:8px 12px; border-radius:4px; border:1px solid var(--border); background:var(--bg-base); color:white; font-size:13px; width:220px; outline:none;">
+            </div>`;
+
+            document.querySelector('#detailsTable tbody').innerHTML = fil.map(s => { 
+                if(!s) return ''; 
+                let st = (s.status||'').toLowerCase(); 
+                let statusDisplay = "";
+                let nameStyle = "color:var(--accent);";
+
+                if (type === 'total' && (s.trade||'').toUpperCase() === 'MA') {
+                    nameStyle = "color:#38bdf8; font-weight:900;"; 
+                } else if (type === 'total') {
+                    nameStyle = "color:var(--text-main);";
+                }
+
+                if (st === 'leave') statusDisplay = `<span style="color:var(--warning);">Leave till ${s.leaveUntil}</span>`; 
+                else if (s.appointment && s.appointment !== "General") statusDisplay = `<span style="color:var(--text-main);">${s.appointment}</span>`; 
+                else if (st.includes('td') || st.includes('course')) statusDisplay = `<span style="color:var(--purple); font-weight:bold;">${s.status.toUpperCase()}</span>`; 
+                else {
+                    let deployments = []; // Array to store multiple duties
+                    if (displayDate && rosterData[displayDate]) {
+                        for (let k in rosterData[displayDate]) {
+                            if (rosterData[displayDate][k] === s.displayName) {
+                                let info = getDeptAndShiftFromKey(k);
+                                
+                                // Unknown fallback to show original DB key if not matched
+                                let dName = info.dept === 'Unknown' ? k.replace(/_/g, ' ') : info.dept;
+                                let shiftStr = info.shift === 'Unknown' ? '' : info.shift.replace("-OPD","").replace(" OPD","");
+                                
+                                let isInc = (s.role === 'Incharge');
+                                let shiftTag = shiftStr ? ` <span style="color:var(--text-muted); font-size:11px; margin-left:5px;">(${shiftStr})</span>` : '';
+                                
+                                deployments.push(`<div style="margin-bottom: 4px;"><span style="color:var(--success); font-weight:bold;">${dName}${isInc ? ' Incharge' : ''}</span>${shiftTag}</div>`);
+                            }
+                        }
+                    }
+                    
+                    if (deployments.length > 0) {
+                        statusDisplay = deployments.join(''); // Shows all duties line by line
+                    } else {
+                        statusDisplay = `<span style="color:var(--warning); font-weight:bold;">Standby / Unassigned</span>`;
+                    }
+                }
+
+                return `<tr><td style="padding-left:25px; color:var(--text-muted);">${s.id||'N/A'}</td><td><strong style="${nameStyle}" class="search-target">${s.displayName}</strong></td><td style="padding-right:25px; vertical-align:middle;">${statusDisplay}</td></tr>`; 
+            }).join(''); 
+            
+            document.getElementById('detailsModal').style.display = "flex"; 
+        }
+
+        function filterDetailsTable() {
+            let input = document.getElementById("detailsSearch").value.toLowerCase();
+            document.querySelectorAll("#detailsTable tbody tr").forEach(tr => {
+                let text = tr.innerText.toLowerCase();
+                tr.style.display = text.includes(input) ? "" : "none";
+            });
+        }
         
         let globalGapData = { maList: [], otherList: [], emptyList: [] };
 
@@ -497,16 +630,17 @@
             globalGapData = { maList: [], otherList: [], emptyList: [] };
 
             deptsConfig.forEach(dept => {
+                let displayDeptName = dept.name === "ICU/POST OP/HDU" ? "HDU" : dept.name;
                 dept.shifts.forEach(shift => {
-                    let key = cleanKey(dept.name + "_" + shift); let count = slotCounts[key] !== undefined ? slotCounts[key] : ((shift.includes("OPD")||shift.includes("PTS")||shift.includes("NON FLU"))?1:(shift.includes("Morning")?3:2));
+                    let key = cleanKey(dept.name + "_" + shift); let count = slotCounts[key] !== undefined ? slotCounts[key] : ((shift.includes("OPD")||shift.includes("PTS")||shift.includes("NON FLU")||shift.includes("WD/M"))?1:(shift.includes("Morning")?3:2));
                     tReq += count;
                     for (let r=0; r<count; r++) {
                         let sKey = key + "_slot_" + r; let name = (rosterData[tDate] && rosterData[tDate][sKey]) ? rosterData[tDate][sKey] : "";
-                        if(name.trim() === "") { eC++; globalGapData.emptyList.push({dept: dept.name, shift: shift}); } 
+                        if(name.trim() === "") { eC++; globalGapData.emptyList.push({dept: displayDeptName, shift: shift}); } 
                         else {
                             let obj = soldiersObjList.find(s => s && s.displayName === name);
-                            if(obj && (obj.trade||'').toUpperCase() === 'MA') { maC++; globalGapData.maList.push({name: name, dept: dept.name, shift: shift}); } 
-                            else { oC++; globalGapData.otherList.push({name: name, dept: dept.name, shift: shift}); }
+                            if(obj && (obj.trade||'').toUpperCase() === 'MA') { maC++; globalGapData.maList.push({name: name, dept: displayDeptName, shift: shift}); } 
+                            else { oC++; globalGapData.otherList.push({name: name, dept: displayDeptName, shift: shift}); }
                         }
                     }
                 });
@@ -555,9 +689,9 @@
                         let sName = info.shift;
 
                         if (!details[dName]) details[dName] = {};
-                        if (!details[dName][sName]) details[dName][sName] = []; // Changed to array for storing dates
+                        if (!details[dName][sName]) details[dName][sName] = []; 
                         
-                        details[dName][sName].push(d); // Push exact date
+                        details[dName][sName].push(d); 
                         totalShifts++;
                     }
                 }
@@ -582,11 +716,10 @@
                         
                         let bClass = "badge-morning";
                         if (shift.includes("Evening")) bClass = "badge-evening";
-                        else if (shift.includes("Night") || shift.includes("NON") || shift.includes("PTS")) bClass = "badge-night";
+                        else if (shift.includes("Night") || shift.includes("NON") || shift.includes("PTS") || shift.includes("Hrs")) bClass = "badge-night";
 
-                        let datesListStr = details[dept][shift].sort().join(','); // Prepare date list string for function parameter
+                        let datesListStr = details[dept][shift].sort().join(','); 
 
-                        // Added clickable functionality to specific shift badges
                         shiftsHtml.push(`<span class="badge ${bClass} badge-clickable" style="margin-right:5px; margin-bottom:5px;" onclick="showShiftDates('${name}', '${dept}', '${shift}', '${datesListStr}')" title="Click to see dates">${shift}: ${count}</span>`);
                     }
                     html += `<tr>
@@ -601,10 +734,8 @@
             document.getElementById('individualDetailsModal').style.display = 'flex';
         }
 
-        // NEW: Function to render the explicit dates array popup
         function showShiftDates(name, dept, shift, datesStr) {
             let dates = datesStr.split(',');
-            
             let datesHtml = dates.map((d, index) => {
                 return `<div style="padding:10px; background:var(--bg-panel); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:4px; margin-bottom:8px; font-weight:bold; color:white; display:flex; justify-content:space-between; align-items:center;">
                     <span><span style="color:var(--text-muted); font-size:12px; margin-right:10px;">${index+1}.</span> 📅 ${d}</span>
