@@ -53,8 +53,8 @@
         .c-admin { border-bottom: 3px solid var(--danger); } .c-admin h3 { color: var(--danger); }
 
         /* Toolbar */
-        .toolbar { background: var(--bg-panel); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
-        .btn { background-color: var(--accent); color: #0f172a; border: none; padding: 8px 15px; border-radius: 4px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .toolbar { background: var(--bg-panel); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .btn { background-color: var(--accent); color: #0f172a; border: none; padding: 8px 14px; border-radius: 4px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .btn:hover { background-color: var(--accent-hover); color: white; }
         .btn-outline { background-color: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
         .btn-outline:hover { border-color: white; color: white; background: transparent; }
@@ -75,6 +75,7 @@
         .close-sidebar { cursor: pointer; color: var(--danger); float: right; font-size: 18px; }
         .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; }
         .drag-item { background: var(--bg-base); border: 1px solid var(--border); padding: 10px; margin-bottom: 8px; border-left: 3px solid var(--success); border-radius: 4px; cursor: grab; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; transition: 0.2s; }
+        .drag-item:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.08); }
         
         /* Modals & Sticky Headers */
         .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); justify-content: center; align-items: center; }
@@ -127,6 +128,10 @@
         .manage-table input, .manage-table select { background: var(--bg-base); color: white; padding: 8px; border: 1px solid var(--border); border-radius: 4px; width: 100%; font-size: 13px; min-width: 100px; }
         .manage-table select { cursor: pointer; }
         
+        /* Dept Config Card */
+        .dept-config-card { background: var(--bg-base); border: 1px solid var(--border); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .shift-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--bg-panel); border: 1px solid var(--border); padding: 6px 10px; border-radius: 4px; margin: 4px; font-size: 12px; font-weight: bold; }
+
         /* Interactive Cards */
         .gap-card { flex: 1; padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; transition: transform 0.2s, filter 0.2s; }
         .gap-card:hover { transform: translateY(-3px); filter: brightness(1.2); }
@@ -188,21 +193,22 @@
     <!-- Toolbar -->
     <div class="toolbar">
         <button id="loginBtn" class="btn btn-danger" onclick="toggleLogin()">🔒 Restricted Area (Login)</button>
-        <button class="btn btn-outline admin-tool" onclick="authCheck(openManageModal)" style="display:none;">⚙️ Database Mgmt</button>
-        <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;" class="admin-tool"></div>
+        <button class="btn btn-outline admin-tool" onclick="authCheck(openManageModal)" style="display:none;">⚙️ Staff DB</button>
+        <button class="btn btn-warning admin-tool" onclick="authCheck(openDeptConfigModal)" style="display:none;">🏥 Post / Dept Config</button>
+        <div style="width: 1px; height: 20px; background: var(--border); margin: 0 3px;" class="admin-tool"></div>
         <button class="btn btn-success" onclick="authCheck(autoAssignAllDuties)">⚡ Auto Deploy</button>
         <button class="btn btn-outline" onclick="toggleSidebar()">👥 Available Staff</button>
         <button class="btn btn-outline" onclick="authCheck(addDateColumn)">➕ Add Column</button>
-        <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;" class="admin-tool"></div>
-        <button class="btn btn-outline admin-tool" onclick="authCheck(exportBackupJSON)" style="display:none;">📥 DB Backup</button>
+        <div style="width: 1px; height: 20px; background: var(--border); margin: 0 3px;" class="admin-tool"></div>
+        <button class="btn btn-outline admin-tool" onclick="authCheck(exportBackupJSON)" style="display:none;">📥 Backup</button>
         <button class="btn btn-outline admin-tool" onclick="authCheck(() => document.getElementById('backupFileBox').click())" style="display:none;">📤 Restore</button>
         <input type="file" id="backupFileBox" style="display:none" accept=".json" onchange="importBackupJSON(event)">
-        <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;"></div>
+        <div style="width: 1px; height: 20px; background: var(--border); margin: 0 3px;"></div>
         <button class="btn btn-purple" onclick="openOpSummaryModal()">📊 Gap Analysis</button>
         <button class="btn btn-outline admin-tool" onclick="openReportModal()" style="display:none;">📈 Monthly Data</button>
         <div style="margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-            <button class="btn btn-outline" onclick="exportToWord()">📄 Export Word</button>
-            <button class="btn btn-outline" onclick="window.print()">🖨️ Print Roster</button>
+            <button class="btn btn-outline" onclick="exportToWord()">📄 Word</button>
+            <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
         </div>
     </div>
 
@@ -215,6 +221,27 @@
         <div class="sidebar-content" id="freeStaffList"></div>
     </div>
 
+    <!-- Department & Duty Post Configuration Modal -->
+    <div id="deptConfigModal" class="modal">
+        <div class="modal-content" style="max-width: 850px;">
+            <div class="modal-header">
+                <span>🏥 Department & Duty Post Configuration</span>
+                <span class="close-modal" onclick="closeModal('deptConfigModal')">×</span>
+            </div>
+            <div class="modal-body">
+                <!-- Add New Department -->
+                <div style="background: var(--bg-base); padding: 15px; border-radius: 6px; border: 1px solid var(--accent); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="newDeptName" placeholder="New Department Name (e.g. DENTAL OPD)" style="flex: 1; min-width: 220px; padding: 10px; background: var(--bg-panel); border: 1px solid var(--border); color: white; border-radius: 4px; font-weight: bold;">
+                    <input type="text" id="newDeptInitialShift" placeholder="Initial Post/Shift (e.g. Morning)" value="Morning" style="width: 180px; padding: 10px; background: var(--bg-panel); border: 1px solid var(--border); color: white; border-radius: 4px;">
+                    <button class="btn btn-success" onclick="addNewDepartment()">➕ Create Department</button>
+                </div>
+
+                <!-- List of Departments & Posts -->
+                <div id="deptConfigList"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- DB Manage Modal -->
     <div id="manageModal" class="modal">
         <div class="modal-content">
@@ -224,7 +251,7 @@
                         <span>Manpower Database Registry</span>
                         <button class="btn btn-success" style="padding: 6px 15px; font-size: 11px;" onclick="saveAllStaff()">💾 Save Changes</button>
                     </div>
-                    <span class="close-modal" onclick="closeModal('manageModal')">&times;</span>
+                    <span class="close-modal" onclick="closeModal('manageModal')">×</span>
                 </div>
                 <div style="display: flex; gap: 10px; background: var(--bg-base); padding: 10px; border-radius: 4px; border:1px solid var(--border); align-items: center; flex-wrap: wrap;">
                     <input type="text" id="newId" placeholder="Mil No" style="padding: 8px; width: 100px; background:transparent; border:1px solid var(--border); color:white; border-radius:4px;">
@@ -246,12 +273,12 @@
         </div>
     </div>
 
-    <!-- List Details Modal (Dynamic Engine Included) -->
+    <!-- List Details Modal -->
     <div id="detailsModal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
                 <div id="detailsTitle" style="display:flex; align-items:center; flex-wrap:wrap; gap:15px; width:100%;">List</div>
-                <span class="close-modal" onclick="closeModal('detailsModal')">&times;</span>
+                <span class="close-modal" onclick="closeModal('detailsModal')">×</span>
             </div>
             <div class="modal-body" style="padding:0;">
                 <div style="overflow-x:auto; max-height:70vh;">
@@ -275,7 +302,7 @@
                         <span id="gapDateContainer"></span>
                     </div>
                 </div>
-                <span class="close-modal" onclick="closeModal('opSummaryModal')" style="margin-top:-5px;">&times;</span>
+                <span class="close-modal" onclick="closeModal('opSummaryModal')" style="margin-top:-5px;">×</span>
             </div>
             <div class="modal-body">
                 <div id="opSummaryContent"></div>
@@ -289,7 +316,7 @@
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
                 <span>Individual Duty Analytics</span>
-                <span class="close-modal" onclick="closeModal('reportModal')">&times;</span>
+                <span class="close-modal" onclick="closeModal('reportModal')">×</span>
             </div>
             <div class="modal-body">
                 <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap:wrap; background: var(--bg-base); padding: 15px; border-radius: 4px; border: 1px solid var(--border);">
@@ -309,7 +336,7 @@
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
                 <span id="indivDetailsTitle">Individual Duty Details</span>
-                <span class="close-modal" onclick="closeModal('individualDetailsModal')">&times;</span>
+                <span class="close-modal" onclick="closeModal('individualDetailsModal')">×</span>
             </div>
             <div class="modal-body" id="indivDetailsContent"></div>
         </div>
@@ -320,7 +347,7 @@
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header" style="border-bottom-color: var(--accent);">
                 <div id="shiftDatesTitle" style="line-height:1.4;">Dates</div>
-                <span class="close-modal" onclick="closeModal('shiftDatesModal')">&times;</span>
+                <span class="close-modal" onclick="closeModal('shiftDatesModal')">×</span>
             </div>
             <div class="modal-body" id="shiftDatesContent"></div>
         </div>
@@ -331,8 +358,8 @@
         <div class="header-title">MORNING-EVENING & NIGHT-DUTY (MA) - CMH SAVAR</div>
         <div id="datalists-container"></div>
         <table id="rosterTable">
-            <thead><!-- Injected via JS --></thead>
-            <tbody><!-- Injected via JS --></tbody>
+            <thead></thead>
+            <tbody></tbody>
         </table>
     </div>
 
@@ -343,6 +370,18 @@
 
         let soldiersObjList = []; let slotCounts = {}; let rosterData = {}; let activeDates = []; let currentSidebarDate = ""; let isDataLoaded = false;
         let currentRole = 'none'; const USER_PIN = "9890"; const ADMIN_PIN = "2009890";
+
+        // Default Department Config (Fallback if Firebase doesn't have custom depts yet)
+        const defaultDeptsConfig = [
+            { name: "E&C DEPT", shifts: ["Morning", "Evening", "Night"] },
+            { name: "ICU/POST OP/HDU", shifts: ["Morning", "Evening", "Night"] }, 
+            { name: "MED-WD/OFFRS WD", shifts: ["Morning", "Evening", "Night"] },
+            { name: "SURG-WD", shifts: ["Morning", "Evening", "Night"] },
+            { name: "NON FLU-DUTY", shifts: ["NON FLU-DUTY"] },
+            { name: "PTS SERIAL", shifts: ["PTS SERIAL"] },
+            { name: "OPD", shifts: ["F-WD/CHILD-OPD", "CWC-1", "CWC-2", "CWC-3", "MED OPD/NIC LAB OPD", "SKIN/ SURG /ORTHO /SSR", "EYE-OPD", "ENT – OPD", "WD/M OFFICE"] }
+        ];
+        let deptsConfig = JSON.parse(JSON.stringify(defaultDeptsConfig));
 
         // ================= Core Sorter (Rank & Army No) =================
         const rankWeights = { "SWO": 1, "WO": 2, "Sgt": 3, "Cpl": 4, "Lcpl": 5, "Snk": 6 };
@@ -364,27 +403,14 @@
         function updateUIPermissions() { document.querySelectorAll('.admin-tool').forEach(el => el.style.display = (currentRole === 'admin') ? 'inline-block' : 'none'); }
         function authCheck(func) { if (currentRole === 'none') { alert("⚠️ Access Denied. Please login first."); return; } func(); }
 
-        // ================= Master Department Config =================
-        // ডেটাবেসের সাথে সিঙ্ক রাখার জন্য নাম আগেরটাই রাখা হয়েছে
-        const deptsConfig = [
-            { name: "E&C DEPT", shifts: ["Morning", "Evening", "Night"] },
-            { name: "ICU/POST OP/HDU", shifts: ["Morning", "Evening", "Night"] }, 
-            { name: "MED-WD/OFFRS WD", shifts: ["Morning", "Evening", "Night"] },
-            { name: "SURG-WD", shifts: ["Morning", "Evening", "Night"] },
-            { name: "NON FLU-DUTY", shifts: ["NON FLU-DUTY"] },
-            { name: "PTS SERIAL", shifts: ["PTS SERIAL"] },
-            { name: "OPD", shifts: ["F-WD/CHILD-OPD", "CWC-1", "CWC-2", "CWC-3", "MED OPD/NIC LAB OPD", "SKIN/ SURG /ORTHO /SSR", "EYE-OPD", "ENT – OPD", "WD/M OFFICE"] }
-        ];
-
         function cleanKey(str) { return str ? str.replace(/[/.#$\[\]]/g, "_").replace(/\s+/g, "_") : ""; }
         
         function getDeptAndShiftFromKey(slotKey) { 
             for (let dept of deptsConfig) { 
+                if (!dept || !dept.shifts) continue;
                 for (let shift of dept.shifts) { 
                     if (slotKey.startsWith(cleanKey(dept.name + "_" + shift))) {
                         if (shift === "WD/M OFFICE") return { dept: "Ward Master Office", shift: "24 Hrs" };
-                        
-                        // HDU Interceptor: ডেটাবেসে ICU থাকলেও ড্যাশবোর্ডে HDU দেখাবে
                         let finalDeptName = dept.name === "ICU/POST OP/HDU" ? "HDU" : dept.name;
                         return { dept: finalDeptName, shift: shift }; 
                     }
@@ -396,15 +422,204 @@
         function sanitizeRosterData(rData) { let clean = {}; for (let date in rData) { clean[date] = {}; for (let key in rData[date]) { clean[date][cleanKey(key)] = rData[date][key]; } } return clean; }
         function sanitizeSlotCounts(counts) { let clean = {}; for (let key in counts) { clean[cleanKey(key)] = counts[key]; } return clean; }
 
+        // ================= Firebase Real-time Sync =================
         database.ref('/').on('value', (snapshot) => {
-            const data = snapshot.val(); document.getElementById('loadingOverlay').style.display = 'none';
-            if (data && data.soldiersObjList && Object.keys(data.soldiersObjList).length > 0) { soldiersObjList = Object.values(data.soldiersObjList).filter(s => s != null); slotCounts = data.slotCounts || {}; rosterData = data.rosterData || {}; activeDates = data.activeDates ? Object.values(data.activeDates).filter(d => d != null) : []; }
-            if (activeDates.length === 0) { let today = new Date(); let tmrw = new Date(); tmrw.setDate(today.getDate() + 1); activeDates = [today.toISOString().split('T')[0], tmrw.toISOString().split('T')[0]]; }
-            if(!currentSidebarDate && activeDates.length > 0) currentSidebarDate = activeDates[0];
-            isDataLoaded = true; updateDashboard(); renderTable(); if(document.getElementById('freeStaffSidebar').classList.contains('active')) updateSidebar(currentSidebarDate);
+            const data = snapshot.val(); 
+            document.getElementById('loadingOverlay').style.display = 'none';
+            if (data) {
+                if (data.soldiersObjList && Object.keys(data.soldiersObjList).length > 0) {
+                    soldiersObjList = Object.values(data.soldiersObjList).filter(s => s != null);
+                }
+                slotCounts = data.slotCounts || {};
+                rosterData = data.rosterData || {};
+                activeDates = data.activeDates ? Object.values(data.activeDates).filter(d => d != null) : [];
+                
+                // Load custom deptsConfig from Firebase if available
+                if (data.deptsConfig && Array.isArray(data.deptsConfig) && data.deptsConfig.length > 0) {
+                    deptsConfig = data.deptsConfig.map(d => ({
+                        name: d.name,
+                        shifts: d.shifts ? Object.values(d.shifts) : ["Morning"]
+                    }));
+                }
+            }
+            if (activeDates.length === 0) { 
+                let today = new Date(); let tmrw = new Date(); tmrw.setDate(today.getDate() + 1); 
+                activeDates = [today.toISOString().split('T')[0], tmrw.toISOString().split('T')[0]]; 
+            }
+            if(!currentSidebarDate || !activeDates.includes(currentSidebarDate)) {
+                currentSidebarDate = activeDates[0];
+            }
+            isDataLoaded = true; 
+            updateDashboard(); 
+            renderTable(); 
+            if(document.getElementById('freeStaffSidebar').classList.contains('active')) {
+                updateSidebar(currentSidebarDate);
+            }
         }, (error) => { document.getElementById('errorText').innerHTML = `Connection Failure: ${error.message}`; });
-        function saveStateToFirebase() { if(isDataLoaded) database.ref('/').set({ soldiersObjList, slotCounts: sanitizeSlotCounts(slotCounts), rosterData: sanitizeRosterData(rosterData), activeDates }); }
 
+        function saveStateToFirebase() { 
+            if(isDataLoaded) {
+                database.ref('/').set({ 
+                    soldiersObjList, 
+                    slotCounts: sanitizeSlotCounts(slotCounts), 
+                    rosterData: sanitizeRosterData(rosterData), 
+                    activeDates,
+                    deptsConfig
+                }); 
+            }
+        }
+
+        // ================= Department & Post Config Management =================
+        function openDeptConfigModal() {
+            renderDeptConfigList();
+            document.getElementById('deptConfigModal').style.display = "flex";
+        }
+
+        function renderDeptConfigList() {
+            const container = document.getElementById('deptConfigList');
+            container.innerHTML = deptsConfig.map((dept, dIdx) => {
+                let shiftsHtml = (dept.shifts || []).map((shift, sIdx) => `
+                    <div class="shift-pill">
+                        <span style="color: var(--accent);">${shift}</span>
+                        <span style="cursor:pointer; color:var(--warning); margin-left:4px;" title="Rename Post" onclick="renameShiftPost(${dIdx}, ${sIdx})">✏️</span>
+                        <span style="cursor:pointer; color:var(--danger); margin-left:2px;" title="Delete Post" onclick="deleteShiftPost(${dIdx}, ${sIdx})">✖</span>
+                    </div>
+                `).join('');
+
+                return `
+                <div class="dept-config-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <strong style="font-size:15px; color:white;">${dept.name === "ICU/POST OP/HDU" ? "HDU (ICU/POST OP/HDU)" : dept.name}</strong>
+                            <button class="btn btn-outline" style="padding:4px 8px; font-size:10px;" onclick="renameDepartment(${dIdx})">✏️ Rename Dept</button>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn btn-outline" style="padding:4px 8px; font-size:10px;" onclick="moveDept(${dIdx}, -1)" ${dIdx === 0 ? 'disabled' : ''}>⬆️</button>
+                            <button class="btn btn-outline" style="padding:4px 8px; font-size:10px;" onclick="moveDept(${dIdx}, 1)" ${dIdx === deptsConfig.length - 1 ? 'disabled' : ''}>⬇️</button>
+                            <button class="btn btn-danger" style="padding:4px 8px; font-size:10px;" onclick="deleteDepartment(${dIdx})">🗑️ Delete Dept</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase;">Duty Posts / Shifts:</div>
+                        <div>${shiftsHtml || '<span style="color:var(--danger); font-size:12px;">No posts added.</span>'}</div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:10px;">
+                        <input type="text" id="addShiftInput_${dIdx}" placeholder="Add new duty post/shift (e.g. Night / Special Post)..." style="flex:1; padding:6px 10px; background:var(--bg-panel); border:1px solid var(--border); color:white; border-radius:4px; font-size:12px;">
+                        <button class="btn btn-success" style="padding:6px 12px; font-size:11px;" onclick="addShiftPost(${dIdx})">➕ Add Post</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function addNewDepartment() {
+            let name = document.getElementById('newDeptName').value.trim().toUpperCase();
+            let initialShift = document.getElementById('newDeptInitialShift').value.trim() || "Morning";
+            if (!name) return alert("Please enter a Department Name.");
+            if (deptsConfig.some(d => d.name.toUpperCase() === name)) return alert("Department already exists!");
+            
+            deptsConfig.push({ name: name, shifts: [initialShift] });
+            document.getElementById('newDeptName').value = '';
+            saveStateToFirebase();
+            renderDeptConfigList();
+        }
+
+        function renameDepartment(dIdx) {
+            let oldName = deptsConfig[dIdx].name;
+            let newName = prompt("Enter new name for Department:", oldName);
+            if (!newName || newName.trim() === "" || newName.trim() === oldName) return;
+            newName = newName.trim().toUpperCase();
+
+            // Migrate existing rosterData & slotCounts keys so data isn't lost
+            deptsConfig[dIdx].shifts.forEach(shift => {
+                let oldKey = cleanKey(oldName + "_" + shift);
+                let newKey = cleanKey(newName + "_" + shift);
+                if (slotCounts[oldKey] !== undefined) {
+                    slotCounts[newKey] = slotCounts[oldKey];
+                    delete slotCounts[oldKey];
+                }
+                for (let date in rosterData) {
+                    for (let k in rosterData[date]) {
+                        if (k.startsWith(oldKey + "_slot_")) {
+                            let suffix = k.replace(oldKey, "");
+                            rosterData[date][newKey + suffix] = rosterData[date][k];
+                            delete rosterData[date][k];
+                        }
+                    }
+                }
+            });
+
+            deptsConfig[dIdx].name = newName;
+            saveStateToFirebase();
+            renderDeptConfigList();
+        }
+
+        function deleteDepartment(dIdx) {
+            if (!confirm(`Are you sure you want to delete "${deptsConfig[dIdx].name}" and all its duty posts?`)) return;
+            deptsConfig.splice(dIdx, 1);
+            saveStateToFirebase();
+            renderDeptConfigList();
+        }
+
+        function moveDept(dIdx, dir) {
+            let targetIdx = dIdx + dir;
+            if (targetIdx < 0 || targetIdx >= deptsConfig.length) return;
+            let temp = deptsConfig[dIdx];
+            deptsConfig[dIdx] = deptsConfig[targetIdx];
+            deptsConfig[targetIdx] = temp;
+            saveStateToFirebase();
+            renderDeptConfigList();
+        }
+
+        function addShiftPost(dIdx) {
+            let input = document.getElementById(`addShiftInput_${dIdx}`);
+            let shiftName = input.value.trim();
+            if (!shiftName) return alert("Enter post/shift name.");
+            if (deptsConfig[dIdx].shifts.includes(shiftName)) return alert("This post/shift already exists in this department.");
+            
+            deptsConfig[dIdx].shifts.push(shiftName);
+            input.value = '';
+            saveStateToFirebase();
+            renderDeptConfigList();
+        }
+
+        function renameShiftPost(dIdx, sIdx) {
+            let deptName = deptsConfig[dIdx].name;
+            let oldShift = deptsConfig[dIdx].shifts[sIdx];
+            let newShift = prompt("Enter new name for Duty Post / Shift:", oldShift);
+            if (!newShift || newShift.trim() === "" || newShift.trim() === oldShift) return;
+            newShift = newShift.trim();
+
+            let oldKey = cleanKey(deptName + "_" + oldShift);
+            let newKey = cleanKey(deptName + "_" + newShift);
+
+            if (slotCounts[oldKey] !== undefined) {
+                slotCounts[newKey] = slotCounts[oldKey];
+                delete slotCounts[oldKey];
+            }
+            for (let date in rosterData) {
+                for (let k in rosterData[date]) {
+                    if (k.startsWith(oldKey + "_slot_")) {
+                        let suffix = k.replace(oldKey, "");
+                        rosterData[date][newKey + suffix] = rosterData[date][k];
+                        delete rosterData[date][k];
+                    }
+                }
+            }
+
+            deptsConfig[dIdx].shifts[sIdx] = newShift;
+            saveStateToFirebase();
+            renderDeptConfigList();
+        }
+
+        function deleteShiftPost(dIdx, sIdx) {
+            if (deptsConfig[dIdx].shifts.length <= 1) return alert("A department must have at least one duty post.");
+            if (!confirm(`Delete duty post "${deptsConfig[dIdx].shifts[sIdx]}"?`)) return;
+            deptsConfig[dIdx].shifts.splice(sIdx, 1);
+            saveStateToFirebase();
+            renderDeptConfigList();
+        }
+
+        // ================= Dashboard & Main Table =================
         function updateDashboard() {
             let total = soldiersObjList.length; let active = 0, leave = 0, td = 0, admin = 0, totalMA = 0;
             soldiersObjList.forEach(s => {
@@ -435,14 +650,13 @@
             
             let tbodyHtml = '';
             deptsConfig.forEach((dept, dIndex) => {
-                // HDU Interceptor for Table Headers
                 let displayDeptName = dept.name === "ICU/POST OP/HDU" ? "HDU" : dept.name;
 
                 tbodyHtml += `<tr><td colspan="${activeDates.length + 1}" class="dept-header" onclick="toggleDept(${dIndex})">
-                    <span id="icon-dept-${dIndex}">▼</span> &nbsp; ${displayDeptName}
+                    <span id="icon-dept-${dIndex}">▼</span>   ${displayDeptName}
                 </td></tr>`;
                 
-                dept.shifts.forEach((shift, sIndex) => {
+                (dept.shifts || []).forEach((shift, sIndex) => {
                     let rawKey = dept.name + "_" + shift; let key = cleanKey(rawKey); 
                     let count = slotCounts[key] !== undefined ? slotCounts[key] : ((shift.includes("OPD")||shift.includes("PTS")||shift.includes("NON FLU")||shift.includes("WD/M"))?1:(shift.includes("Morning")?3:2));
                     let badgeClass = shift.includes("Morning") || shift.includes("OPD") || shift.includes("WD/M") ? "badge-morning" : (shift.includes("Evening") ? "badge-evening" : "badge-night");
@@ -458,7 +672,7 @@
                         if (r === 0) {
                             tbodyHtml += `<td rowspan="${count}" class="shift-label">
                                 <span class="badge ${badgeClass}">${shiftNameDisplay}</span>
-                                <div class="slot-controls no-print"><span onclick="modifySlotHandler('${key}', 1)">➕</span> &nbsp; <span onclick="modifySlotHandler('${key}', -1)">➖</span></div>
+                                <div class="slot-controls no-print"><span onclick="modifySlotHandler('${key}', 1)">➕</span>   <span onclick="modifySlotHandler('${key}', -1)">➖</span></div>
                             </td>`;
                         }
                         activeDates.forEach(date => {
@@ -487,32 +701,116 @@
         function changeDateHandler(index, newDate) { if(currentRole === 'none') return alert("Action Locked."); activeDates[index] = newDate; saveStateToFirebase(); renderTable(); }
         function removeDateColumnHandler(index) { if(currentRole === 'none') return alert("Action Locked."); if(activeDates.length > 1) { activeDates.splice(index, 1); saveStateToFirebase(); renderTable(); } }
         function modifySlotHandler(key, delta) { if(currentRole === 'none') return alert("Action Locked."); let c = slotCounts[key]; if(c === undefined) c = 2; if (c + delta >= 1) { slotCounts[key] = c + delta; saveStateToFirebase(); renderTable(); } }
-        function clearInputHandler(date, key) { if(currentRole === 'none') return alert("Action Locked."); if(rosterData[date]) { rosterData[date][key] = ""; saveStateToFirebase(); renderTable(); } }
-        function dragStart(ev, name, date, key) { if(currentRole === 'none') { ev.preventDefault(); return alert("Action Locked."); } ev.dataTransfer.setData("application/json", JSON.stringify({name, date, key})); }
+        
+        function clearInputHandler(date, key) { 
+            if(currentRole === 'none') return alert("Action Locked."); 
+            if(rosterData[date]) { 
+                rosterData[date][key] = ""; 
+                saveStateToFirebase(); 
+                renderTable(); 
+                if(document.getElementById('freeStaffSidebar').classList.contains('active')) updateSidebar(currentSidebarDate);
+            } 
+        }
+
+        function dragStart(ev, name, date, key) { 
+            if(currentRole === 'none') { ev.preventDefault(); return alert("Action Locked."); } 
+            ev.dataTransfer.setData("application/json", JSON.stringify({name: name.trim(), date, key})); 
+        }
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
-        function dropCell(ev, tDate, tKey) { ev.preventDefault(); ev.currentTarget.classList.remove('drag-over'); if(currentRole === 'none') return alert("Action Locked."); let dStr = ev.dataTransfer.getData("application/json"); if(dStr) { let d = JSON.parse(dStr); if(!d.name) return; if(d.date === tDate && d.key && d.key !== tKey) rosterData[d.date][d.key] = ""; if (!rosterData[tDate]) rosterData[tDate] = {}; rosterData[tDate][tKey] = d.name; saveStateToFirebase(); renderTable(); } }
-        function manualInputSave(date, key, val) { if(currentRole === 'none') return alert("Action Locked."); if (!rosterData[date]) rosterData[date] = {}; rosterData[date][key] = val.trim(); saveStateToFirebase(); }
-        function addDateColumn() { if(activeDates.length >= 7) return alert("Limit: 7 Days."); let lDate = new Date(activeDates[activeDates.length - 1]); lDate.setDate(lDate.getDate() + 1); activeDates.push(lDate.toISOString().split('T')[0]); saveStateToFirebase(); renderTable(); }
-        function autoAssignAllDuties() { if(activeDates.length < 2) return; let tDate = activeDates[activeDates.length - 1]; let sDate = activeDates[activeDates.length - 2]; if(!rosterData[tDate]) rosterData[tDate] = {}; let c = 0; if(rosterData[sDate]) { for(let k in rosterData[sDate]) { let n = rosterData[sDate][k]; if(n) { let obj = soldiersObjList.find(s => s && s.displayName === n); if(obj && !obj.appointment && (obj.status||'').toLowerCase() === 'active' && !rosterData[tDate][k]) { rosterData[tDate][k] = n; c++; } } } } if(c>0){ saveStateToFirebase(); renderTable(); alert("Deployment Auto-Generated."); } }
         
-        function toggleSidebar() { let sb = document.getElementById('freeStaffSidebar'); if (sb.classList.contains('active')) sb.classList.remove('active'); else { updateSidebar(currentSidebarDate || activeDates[0]); sb.classList.add('active'); } }
+        function dropCell(ev, tDate, tKey) { 
+            ev.preventDefault(); 
+            ev.currentTarget.classList.remove('drag-over'); 
+            if(currentRole === 'none') return alert("Action Locked."); 
+            let dStr = ev.dataTransfer.getData("application/json"); 
+            if(dStr) { 
+                let d = JSON.parse(dStr); 
+                if(!d.name) return; 
+                if(d.date === tDate && d.key && d.key !== tKey) rosterData[d.date][d.key] = ""; 
+                if (!rosterData[tDate]) rosterData[tDate] = {}; 
+                rosterData[tDate][tKey] = d.name.trim(); 
+                saveStateToFirebase(); 
+                renderTable(); 
+                // Immediately refresh sidebar to remove assigned staff
+                if(document.getElementById('freeStaffSidebar').classList.contains('active')) {
+                    updateSidebar(currentSidebarDate);
+                }
+            } 
+        }
+
+        function manualInputSave(date, key, val) { 
+            if(currentRole === 'none') return alert("Action Locked."); 
+            if (!rosterData[date]) rosterData[date] = {}; 
+            rosterData[date][key] = val.trim(); 
+            saveStateToFirebase(); 
+            if(document.getElementById('freeStaffSidebar').classList.contains('active')) {
+                updateSidebar(currentSidebarDate);
+            }
+        }
+
+        function addDateColumn() { if(activeDates.length >= 7) return alert("Limit: 7 Days."); let lDate = new Date(activeDates[activeDates.length - 1]); lDate.setDate(lDate.getDate() + 1); activeDates.push(lDate.toISOString().split('T')[0]); saveStateToFirebase(); renderTable(); }
+        function autoAssignAllDuties() { if(activeDates.length < 2) return; let tDate = activeDates[activeDates.length - 1]; let sDate = activeDates[activeDates.length - 2]; if(!rosterData[tDate]) rosterData[tDate] = {}; let c = 0; if(rosterData[sDate]) { for(let k in rosterData[sDate]) { let n = rosterData[sDate][k]; if(n) { let obj = soldiersObjList.find(s => s && s.displayName.trim() === n.trim()); if(obj && !obj.appointment && (obj.status||'').toLowerCase() === 'active' && !rosterData[tDate][k]) { rosterData[tDate][k] = n.trim(); c++; } } } } if(c>0){ saveStateToFirebase(); renderTable(); alert("Deployment Auto-Generated."); } }
+        
+        // ================= Fixed Available Staff Sidebar =================
+        function toggleSidebar() { 
+            let sb = document.getElementById('freeStaffSidebar'); 
+            if (sb.classList.contains('active')) sb.classList.remove('active'); 
+            else { updateSidebar(currentSidebarDate || activeDates[0]); sb.classList.add('active'); } 
+        }
         function openFreeStaffSidebar(date) { updateSidebar(date); document.getElementById('freeStaffSidebar').classList.add('active'); }
+        
         function updateSidebar(tDate) {
-            tDate = tDate || activeDates[0]; currentSidebarDate = tDate; document.getElementById('sidebarDateDisplay').innerText = tDate;
-            let aToday = []; if(rosterData[tDate]) Object.values(rosterData[tDate]).forEach(n => { if(n) aToday.push(n.trim()); });
-            let fStaff = soldiersObjList.filter(s => { if(!s) return false; let isAd = (s.appointment && s.appointment !== "General"); let st = (s.status || "").toLowerCase(); let isUn = (st==='leave'||st.includes('td')||st.includes('course')); return !(isAd || isUn || aToday.includes(s.displayName)); });
+            tDate = tDate || activeDates[0]; 
+            currentSidebarDate = tDate; 
+            document.getElementById('sidebarDateDisplay').innerText = tDate;
+            
+            // Collect all assigned names for tDate (normalized with trim & lowercase for exact matching)
+            let aToday = []; 
+            if(rosterData[tDate]) {
+                Object.values(rosterData[tDate]).forEach(n => { 
+                    if(n && n.trim() !== "") aToday.push(n.trim().toLowerCase()); 
+                });
+            }
+            
+            let fStaff = soldiersObjList.filter(s => { 
+                if(!s || !s.displayName) return false; 
+                let isAd = (s.appointment && s.appointment.trim() !== "" && s.appointment !== "General"); 
+                let st = (s.status || "").toLowerCase().trim(); 
+                let isUn = (st === 'leave' || st.includes('td') || st.includes('course')); 
+                let isAssigned = aToday.includes(s.displayName.trim().toLowerCase());
+                return !(isAd || isUn || isAssigned); 
+            });
             
             fStaff = sortSoldiers(fStaff);
 
-            document.getElementById('freeStaffList').innerHTML = fStaff.map(s => `<div class="drag-item" draggable="true" ondragstart="dragStart(event, '${s.displayName}', null, null)"><span>${s.displayName}</span> <span style="color:var(--text-muted);">🔀</span></div>`).join('') || `<div style="text-align:center; color:var(--danger); padding:20px; font-weight:bold;">All Personnel Deployed!</div>`;
+            const listContainer = document.getElementById('freeStaffList');
+            listContainer.innerHTML = '';
+
+            if (fStaff.length === 0) {
+                listContainer.innerHTML = `<div style="text-align:center; color:var(--danger); padding:20px; font-weight:bold;">All Personnel Deployed!</div>`;
+                return;
+            }
+
+            // Safe DOM creation prevents quotation breaking on newly added names
+            fStaff.forEach(s => {
+                let div = document.createElement('div');
+                div.className = 'drag-item';
+                div.draggable = true;
+                div.ondragstart = function(event) {
+                    dragStart(event, s.displayName.trim(), null, null);
+                };
+                div.innerHTML = `<span>${s.displayName.trim()}</span> <span style="color:var(--text-muted);">🔀</span>`;
+                listContainer.appendChild(div);
+            });
         }
-        function updateDatalists() { activeDates.forEach(date => { let dl = document.getElementById(`list_${date}`); if(dl) { dl.innerHTML = soldiersObjList.filter(s => s && !(s.appointment && s.appointment !== "General") && !(s.status||'').toLowerCase().match(/leave|td|course/)).map(s => `<option value="${s.displayName}">`).join(''); } }); }
+
+        function updateDatalists() { activeDates.forEach(date => { let dl = document.getElementById(`list_${date}`); if(dl) { dl.innerHTML = soldiersObjList.filter(s => s && !(s.appointment && s.appointment !== "General") && !(s.status||'').toLowerCase().match(/leave|td|course/)).map(s => `<option value="${s.displayName.trim()}">`).join(''); } }); }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
         
+        // ================= Manpower Database Management =================
         function openManageModal() { document.getElementById('manageModal').style.display = "flex"; renderManageTable(); }
         
-        // ================= Custom Table Input Resizing Applied =================
         function renderManageTable() {
             soldiersObjList = sortSoldiers(soldiersObjList);
 
@@ -530,10 +828,48 @@
         }
 
         function searchTable() { let i = document.getElementById("searchInput").value.toLowerCase(); document.querySelectorAll("#manageTable tbody tr").forEach(tr => { let n = tr.querySelector(".search-name"); if (n) tr.style.display = n.value.toLowerCase().includes(i) ? "" : "none"; }); }
-        function addSoldier() { let id = document.getElementById('newId').value; let rank = document.getElementById('newRank').value; let trade = document.getElementById('newTrade').value; let name = document.getElementById('newName').value; if(!id || !name) return; soldiersObjList.push({ id, rank, trade, name, role: "General", appointment: "", status: "active", leaveUntil: "", displayName: `${rank} (${trade}) ${name}` }); renderManageTable(); }
-        function saveAllStaff() { soldiersObjList.forEach((s,i) => { if(s) { let oN = s.displayName; s.id = document.getElementById(`editId_${i}`).value; s.rank = document.getElementById(`editRank_${i}`).value; s.trade = document.getElementById(`editTrade_${i}`).value; s.name = document.getElementById(`editName_${i}`).value; s.appointment = document.getElementById(`appt_${i}`).value; s.role = document.getElementById(`role_${i}`).value; s.status = document.getElementById(`status_${i}`).value; s.leaveUntil = s.status==='leave'?document.getElementById(`lEnd_${i}`).value:""; s.displayName = `${s.rank} (${s.trade}) ${s.name}`; if (oN !== s.displayName) { for(let d in rosterData) for(let k in rosterData[d]) if(rosterData[d][k] === oN) rosterData[d][k] = s.displayName; } } }); saveStateToFirebase(); closeModal('manageModal'); alert("Records Updated."); }
         
-        // ================= Details Dynamic Engine (Upgraded with Date Picker & Multi-Duty) =================
+        function addSoldier() { 
+            let id = document.getElementById('newId').value.trim(); 
+            let rank = document.getElementById('newRank').value; 
+            let trade = document.getElementById('newTrade').value; 
+            let name = document.getElementById('newName').value.trim(); 
+            if(!id || !name) return alert("Please enter Military No and Name."); 
+            
+            soldiersObjList.push({ 
+                id, rank, trade, name, 
+                role: "General", appointment: "", status: "active", leaveUntil: "", 
+                displayName: `${rank} (${trade}) ${name}`.trim() 
+            }); 
+            document.getElementById('newId').value = '';
+            document.getElementById('newName').value = '';
+            renderManageTable(); 
+        }
+
+        function saveAllStaff() { 
+            soldiersObjList.forEach((s,i) => { 
+                if(s) { 
+                    let oN = s.displayName; 
+                    s.id = document.getElementById(`editId_${i}`).value.trim(); 
+                    s.rank = document.getElementById(`editRank_${i}`).value; 
+                    s.trade = document.getElementById(`editTrade_${i}`).value; 
+                    s.name = document.getElementById(`editName_${i}`).value.trim(); 
+                    s.appointment = document.getElementById(`appt_${i}`).value.trim(); 
+                    s.role = document.getElementById(`role_${i}`).value; 
+                    s.status = document.getElementById(`status_${i}`).value; 
+                    s.leaveUntil = s.status==='leave'?document.getElementById(`lEnd_${i}`).value:""; 
+                    s.displayName = `${s.rank} (${s.trade}) ${s.name}`.trim(); 
+                    if (oN !== s.displayName) { 
+                        for(let d in rosterData) for(let k in rosterData[d]) if(rosterData[d][k] === oN) rosterData[d][k] = s.displayName; 
+                    } 
+                } 
+            }); 
+            saveStateToFirebase(); 
+            closeModal('manageModal'); 
+            alert("Records Updated."); 
+        }
+        
+        // ================= Details Dynamic Engine =================
         function showDetails(type, forceDate = null) { 
             let fil = []; let t = ""; 
             if (type === 'total') { fil = soldiersObjList; t = "Total Force Protocol"; } 
@@ -545,7 +881,6 @@
             
             fil = sortSoldiers(fil); 
 
-            // Date Picker Logic
             let latestDate = activeDates.length > 0 ? activeDates[activeDates.length - 1] : null;
             let displayDate = forceDate || latestDate;
 
@@ -576,29 +911,20 @@
                 else if (s.appointment && s.appointment !== "General") statusDisplay = `<span style="color:var(--text-main);">${s.appointment}</span>`; 
                 else if (st.includes('td') || st.includes('course')) statusDisplay = `<span style="color:var(--purple); font-weight:bold;">${s.status.toUpperCase()}</span>`; 
                 else {
-                    let deployments = []; // Array to store multiple duties
+                    let deployments = [];
                     if (displayDate && rosterData[displayDate]) {
                         for (let k in rosterData[displayDate]) {
-                            if (rosterData[displayDate][k] === s.displayName) {
+                            if (rosterData[displayDate][k].trim() === s.displayName.trim()) {
                                 let info = getDeptAndShiftFromKey(k);
-                                
-                                // Unknown fallback to show original DB key if not matched
                                 let dName = info.dept === 'Unknown' ? k.replace(/_/g, ' ') : info.dept;
                                 let shiftStr = info.shift === 'Unknown' ? '' : info.shift.replace("-OPD","").replace(" OPD","");
-                                
                                 let isInc = (s.role === 'Incharge');
                                 let shiftTag = shiftStr ? ` <span style="color:var(--text-muted); font-size:11px; margin-left:5px;">(${shiftStr})</span>` : '';
-                                
                                 deployments.push(`<div style="margin-bottom: 4px;"><span style="color:var(--success); font-weight:bold;">${dName}${isInc ? ' Incharge' : ''}</span>${shiftTag}</div>`);
                             }
                         }
                     }
-                    
-                    if (deployments.length > 0) {
-                        statusDisplay = deployments.join(''); // Shows all duties line by line
-                    } else {
-                        statusDisplay = `<span style="color:var(--warning); font-weight:bold;">Standby / Unassigned</span>`;
-                    }
+                    statusDisplay = deployments.length > 0 ? deployments.join('') : `<span style="color:var(--warning); font-weight:bold;">Standby / Unassigned</span>`;
                 }
 
                 return `<tr><td style="padding-left:25px; color:var(--text-muted);">${s.id||'N/A'}</td><td><strong style="${nameStyle}" class="search-target">${s.displayName}</strong></td><td style="padding-right:25px; vertical-align:middle;">${statusDisplay}</td></tr>`; 
@@ -631,14 +957,14 @@
 
             deptsConfig.forEach(dept => {
                 let displayDeptName = dept.name === "ICU/POST OP/HDU" ? "HDU" : dept.name;
-                dept.shifts.forEach(shift => {
+                (dept.shifts || []).forEach(shift => {
                     let key = cleanKey(dept.name + "_" + shift); let count = slotCounts[key] !== undefined ? slotCounts[key] : ((shift.includes("OPD")||shift.includes("PTS")||shift.includes("NON FLU")||shift.includes("WD/M"))?1:(shift.includes("Morning")?3:2));
                     tReq += count;
                     for (let r=0; r<count; r++) {
                         let sKey = key + "_slot_" + r; let name = (rosterData[tDate] && rosterData[tDate][sKey]) ? rosterData[tDate][sKey] : "";
                         if(name.trim() === "") { eC++; globalGapData.emptyList.push({dept: displayDeptName, shift: shift}); } 
                         else {
-                            let obj = soldiersObjList.find(s => s && s.displayName === name);
+                            let obj = soldiersObjList.find(s => s && s.displayName.trim() === name.trim());
                             if(obj && (obj.trade||'').toUpperCase() === 'MA') { maC++; globalGapData.maList.push({name: name, dept: displayDeptName, shift: shift}); } 
                             else { oC++; globalGapData.otherList.push({name: name, dept: displayDeptName, shift: shift}); }
                         }
@@ -683,7 +1009,7 @@
             for (let d in rosterData) {
                 if (m && !d.startsWith(m)) continue;
                 for (let k in rosterData[d]) {
-                    if (rosterData[d][k] === name) {
+                    if (rosterData[d][k].trim() === name.trim()) {
                         let info = getDeptAndShiftFromKey(k);
                         let dName = info.dept;
                         let sName = info.shift;
@@ -700,7 +1026,7 @@
             let monthDisplay = m ? `(Month: ${m})` : "(All Time)";
             document.getElementById('indivDetailsTitle').innerText = `Duty Report: ${name} ${monthDisplay}`;
 
-            let html = `<div style="margin-bottom:15px; font-size:14px; color:var(--text-muted);">Total Assignemts Found: <strong style="color:var(--accent); font-size:18px;">${totalShifts}</strong></div>`;
+            let html = `<div style="margin-bottom:15px; font-size:14px; color:var(--text-muted);">Total Assignments Found: <strong style="color:var(--accent); font-size:18px;">${totalShifts}</strong></div>`;
             html += `<table class="manage-table" style="background:var(--bg-base); border-radius:6px; overflow:hidden;">`;
             html += `<thead><tr><th>Department</th><th>Shift Breakdown <span style="font-size:10px;color:var(--success);text-transform:none;">(Click on a shift to view dates)</span></th><th style="text-align:center;">Total</th></tr></thead><tbody>`;
 
@@ -742,7 +1068,7 @@
                 </div>`;
             }).join('');
             
-            document.getElementById('shiftDatesTitle').innerHTML = `<div style="color:var(--accent); font-size:18px;">${name}</div> <div style="font-size:12px; color:var(--text-muted); font-weight:normal; margin-top:3px; text-transform:none;">${dept} &rarr; ${shift}</div>`;
+            document.getElementById('shiftDatesTitle').innerHTML = `<div style="color:var(--accent); font-size:18px;">${name}</div> <div style="font-size:12px; color:var(--text-muted); font-weight:normal; margin-top:3px; text-transform:none;">${dept} → ${shift}</div>`;
             document.getElementById('shiftDatesContent').innerHTML = datesHtml;
             document.getElementById('shiftDatesModal').style.display = 'flex';
         }
@@ -756,12 +1082,12 @@
             tbody.innerHTML = ''; 
             
             let rep = {}; 
-            soldiersObjList.forEach(obj => { if(obj) rep[obj.displayName] = { count: 0, dBreak: {} }; }); 
+            soldiersObjList.forEach(obj => { if(obj) rep[obj.displayName.trim()] = { count: 0, dBreak: {} }; }); 
             
             for(let d in rosterData) { 
                 if(m && !d.startsWith(m)) continue; 
                 for(let k in rosterData[d]) { 
-                    let n = rosterData[d][k]; 
+                    let n = rosterData[d][k] ? rosterData[d][k].trim() : ""; 
                     if(n && rep[n]) { 
                         rep[n].count++; 
                         let info = getDeptAndShiftFromKey(k); 
@@ -775,7 +1101,7 @@
             for(let n in rep) { 
                 if(s && !n.toLowerCase().includes(s)) continue; 
                 if(rep[n].count > 0) { 
-                    let bStr = Object.entries(rep[n].dBreak).map(([d,c]) => `<span style="color:var(--text-muted);">${d}:</span> <strong style="color:white;">${c}</strong>`).join(' &nbsp;|&nbsp; '); 
+                    let bStr = Object.entries(rep[n].dBreak).map(([d,c]) => `<span style="color:var(--text-muted);">${d}:</span> <strong style="color:white;">${c}</strong>`).join('  |  '); 
                     
                     tbody.innerHTML += `<tr>
                         <td><strong style="color:var(--accent); cursor:pointer; text-decoration:underline; font-size:14px; transition:0.2s;" onmouseover="this.style.color='var(--accent-hover)'" onmouseout="this.style.color='var(--accent)'" onclick="openIndividualDetails('${n}')" title="View Detailed Report">${n}</strong></td>
@@ -787,8 +1113,8 @@
         }
 
         // Export & Backup 
-        function exportBackupJSON() { let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ soldiersObjList, slotCounts, rosterData, activeDates }, null, 2)); let link = document.createElement('a'); link.href = dataStr; link.download = "CMH_Roster_DB_" + activeDates[0] + ".json"; document.body.appendChild(link); link.click(); link.remove(); }
-        function importBackupJSON(event) { let file = event.target.files[0]; if (!file) return; let reader = new FileReader(); reader.onload = function(e) { try { let imported = JSON.parse(e.target.result); if (imported && imported.soldiersObjList) { soldiersObjList = Object.values(imported.soldiersObjList); slotCounts = imported.slotCounts||{}; rosterData = imported.rosterData||{}; activeDates = Object.values(imported.activeDates); saveStateToFirebase(); updateDashboard(); renderTable(); alert("System Restored Successfully!"); } } catch (err) { alert("File Corruption Error."); } }; reader.readAsText(file); }
+        function exportBackupJSON() { let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ soldiersObjList, slotCounts, rosterData, activeDates, deptsConfig }, null, 2)); let link = document.createElement('a'); link.href = dataStr; link.download = "CMH_Roster_DB_" + activeDates[0] + ".json"; document.body.appendChild(link); link.click(); link.remove(); }
+        function importBackupJSON(event) { let file = event.target.files[0]; if (!file) return; let reader = new FileReader(); reader.onload = function(e) { try { let imported = JSON.parse(e.target.result); if (imported && imported.soldiersObjList) { soldiersObjList = Object.values(imported.soldiersObjList); slotCounts = imported.slotCounts||{}; rosterData = imported.rosterData||{}; activeDates = Object.values(imported.activeDates); if(imported.deptsConfig) deptsConfig = imported.deptsConfig; saveStateToFirebase(); updateDashboard(); renderTable(); alert("System Restored Successfully!"); } } catch (err) { alert("File Corruption Error."); } }; reader.readAsText(file); }
         
         function exportToWord() {
             let link = document.createElement('a'); link.download = `Duty_Roster_Export_${activeDates[0]}.doc`; 
